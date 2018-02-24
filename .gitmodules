@@ -1,0 +1,3 @@
+[submodule "Elektronik/Arduino-Motorsteuerung"]
+	path = Elektronik/Arduino-Motorsteuerung
+	url = https://github.com/MarJong/FabLock.git
