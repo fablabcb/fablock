@@ -1,0 +1,316 @@
+[
+    {
+        "id": "62f2c48c.3566f4",
+        "type": "tab",
+        "label": "FabLock Telegram Bot",
+        "disabled": false,
+        "info": "A Telegram bot that sends notifications whenever someone opens the FabLock"
+    },
+    {
+        "id": "d42a722c.a107e8",
+        "type": "telegram bot",
+        "z": "",
+        "botname": "FabLock_bot",
+        "usernames": "",
+        "chatids": "-251584757"
+    },
+    {
+        "id": "10886590.8daf5a",
+        "type": "sqlitedb",
+        "z": "",
+        "db": "/home/pi/roseguarden/server/database/roseGuarden.db"
+    },
+    {
+        "id": "b9d6559f.4d76f8",
+        "type": "rpi-gpio out",
+        "z": "62f2c48c.3566f4",
+        "name": "Open-Pin",
+        "pin": "12",
+        "set": true,
+        "level": "1",
+        "freq": "",
+        "out": "out",
+        "x": 980,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "77b7837c.1cce84",
+        "type": "debug",
+        "z": "62f2c48c.3566f4",
+        "name": "Debug Konsole",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "x": 480,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "5c807dc.2ccc404",
+        "type": "function",
+        "z": "62f2c48c.3566f4",
+        "name": "",
+        "func": "if(msg.payload){\n    msg.payload = \"Fenster offen\"\n}else{\n    msg.payload = \"Fenster geschlossen\"\n}\n\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 310,
+        "y": 320,
+        "wires": [
+            [
+                "f57a7bf6.efcad8"
+            ]
+        ]
+    },
+    {
+        "id": "2d675a72.1f71be",
+        "type": "trigger",
+        "z": "62f2c48c.3566f4",
+        "op1": "0",
+        "op2": "1",
+        "op1type": "num",
+        "op2type": "num",
+        "duration": "1",
+        "extend": false,
+        "units": "s",
+        "reset": "",
+        "bytopic": "all",
+        "name": "",
+        "x": 640,
+        "y": 200,
+        "wires": [
+            [
+                "b9d6559f.4d76f8"
+            ]
+        ]
+    },
+    {
+        "id": "f57a7bf6.efcad8",
+        "type": "template",
+        "z": "62f2c48c.3566f4",
+        "name": "Telegram message preparer",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "{\"chatId\":-251584757,\"type\":\"message\",\"content\":\"{{payload}}\"}",
+        "output": "json",
+        "x": 720,
+        "y": 320,
+        "wires": [
+            [
+                "1e30d87c.67027"
+            ]
+        ]
+    },
+    {
+        "id": "4e97c027.e28bd8",
+        "type": "rpi-gpio in",
+        "z": "62f2c48c.3566f4",
+        "name": "Fenster geschlossen",
+        "pin": "16",
+        "intype": "tri",
+        "debounce": "25",
+        "read": false,
+        "x": 130,
+        "y": 320,
+        "wires": [
+            [
+                "5c807dc.2ccc404"
+            ]
+        ]
+    },
+    {
+        "id": "d8337ab2.f196f8",
+        "type": "inject",
+        "z": "62f2c48c.3566f4",
+        "name": "Öffnen",
+        "topic": "",
+        "payload": "0",
+        "payloadType": "num",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 90,
+        "y": 160,
+        "wires": [
+            [
+                "2d675a72.1f71be"
+            ]
+        ]
+    },
+    {
+        "id": "bae99e3c.b89ca8",
+        "type": "telegram command",
+        "z": "62f2c48c.3566f4",
+        "name": "",
+        "command": "/open",
+        "bot": "d42a722c.a107e8",
+        "x": 90,
+        "y": 200,
+        "wires": [
+            [
+                "2d675a72.1f71be"
+            ],
+            [
+                "de8b357e.9b11f"
+            ]
+        ]
+    },
+    {
+        "id": "1e30d87c.67027",
+        "type": "telegram sender",
+        "z": "62f2c48c.3566f4",
+        "name": "",
+        "bot": "d42a722c.a107e8",
+        "x": 960,
+        "y": 320,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "de8b357e.9b11f",
+        "type": "template",
+        "z": "62f2c48c.3566f4",
+        "name": "Telegram message preparer",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "plain",
+        "template": "{\"chatId\":-251584757,\"type\":\"message\",\"content\":\"Sende /open zum öffnen des FabLocks\"}",
+        "output": "json",
+        "x": 720,
+        "y": 280,
+        "wires": [
+            [
+                "1e30d87c.67027"
+            ]
+        ]
+    },
+    {
+        "id": "756bf4d6.ff5194",
+        "type": "inject",
+        "z": "62f2c48c.3566f4",
+        "name": "Test message",
+        "topic": "",
+        "payload": "{\"chatId\":-251584757,\"type\":\"message\",\"content\":\"+++Test+++Test+++\"}",
+        "payloadType": "json",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 770,
+        "y": 360,
+        "wires": [
+            [
+                "1e30d87c.67027"
+            ]
+        ]
+    },
+    {
+        "id": "e16c0063.41383",
+        "type": "watch",
+        "z": "62f2c48c.3566f4",
+        "name": "roseGuarden.db",
+        "files": "/home/pi/roseguarden/server/database/roseGuarden.db",
+        "recursive": "",
+        "x": 120,
+        "y": 580,
+        "wires": [
+            [
+                "99b40361.103268",
+                "bf249ebc.bbd6d"
+            ]
+        ]
+    },
+    {
+        "id": "99b40361.103268",
+        "type": "template",
+        "z": "62f2c48c.3566f4",
+        "name": "Database has changed",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "plain",
+        "template": "Database has changed",
+        "output": "str",
+        "x": 350,
+        "y": 620,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e1ac5a81.5b1aa8",
+        "type": "inject",
+        "z": "62f2c48c.3566f4",
+        "name": "test-query",
+        "topic": "SELECT * FROM `action` WHERE (`logType` = 'Opening request') ORDER BY `date` DESC LIMIT 1",
+        "payload": "",
+        "payloadType": "str",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 280,
+        "y": 540,
+        "wires": [
+            [
+                "bb810008.e3f1c8"
+            ]
+        ]
+    },
+    {
+        "id": "bb810008.e3f1c8",
+        "type": "sqlite",
+        "z": "62f2c48c.3566f4",
+        "mydb": "10886590.8daf5a",
+        "name": "roseGuarden.db",
+        "x": 460,
+        "y": 580,
+        "wires": [
+            [
+                "894b418a.d64d58"
+            ]
+        ]
+    },
+    {
+        "id": "bf249ebc.bbd6d",
+        "type": "template",
+        "z": "62f2c48c.3566f4",
+        "name": "query",
+        "field": "topic",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "plain",
+        "template": "SELECT * FROM `action` ORDER BY `date` DESC LIMIT 1",
+        "output": "str",
+        "x": 290,
+        "y": 580,
+        "wires": [
+            [
+                "bb810008.e3f1c8"
+            ]
+        ]
+    },
+    {
+        "id": "894b418a.d64d58",
+        "type": "function",
+        "z": "62f2c48c.3566f4",
+        "name": "react only to Open Request",
+        "func": "//Prüfen, ob die log id sich gändert hat\nvar id = context.get('id')||0;\ncontext.set('id',msg.payload[0].id);\n\n\n\nif(id != msg.payload[0].id &\n    msg.payload[0].logType == \"Opening request\"){\n    msg.payload = \"Karte von \" + \n    msg.payload[0].userName +\n    \" registriert um \" +\n    msg.payload[0].date;\n    return msg;    \n}\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 680,
+        "y": 580,
+        "wires": [
+            [
+                "f57a7bf6.efcad8"
+            ]
+        ]
+    }
+]
