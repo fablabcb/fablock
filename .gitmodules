@@ -1,3 +1,6 @@
 [submodule "Elektronik/Arduino-Motorsteuerung"]
 	path = Elektronik/Arduino-Motorsteuerung
 	url = https://github.com/MarJong/FabLock.git
+[submodule "Elektronik/Roseguarden_Raspberry-RFID-Leser"]
+	path = Elektronik/Roseguarden_Raspberry-RFID-Leser
+	url = https://github.com/fablabcb/roseguarden.git
