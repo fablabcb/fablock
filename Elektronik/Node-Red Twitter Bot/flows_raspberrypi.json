@@ -109,12 +109,12 @@
         "id": "4e97c027.e28bd8",
         "type": "rpi-gpio in",
         "z": "62f2c48c.3566f4",
-        "name": "Fenster geschlossen",
+        "name": "Fenster offen",
         "pin": "16",
         "intype": "tri",
         "debounce": "25",
         "read": false,
-        "x": 130,
+        "x": 110,
         "y": 320,
         "wires": [
             [
@@ -307,6 +307,39 @@
         "noerr": 0,
         "x": 680,
         "y": 580,
+        "wires": [
+            [
+                "f57a7bf6.efcad8"
+            ]
+        ]
+    },
+    {
+        "id": "14a0663.2c82f1a",
+        "type": "rpi-gpio in",
+        "z": "62f2c48c.3566f4",
+        "name": "Schlüssel geschaltet",
+        "pin": "26",
+        "intype": "tri",
+        "debounce": "25",
+        "read": false,
+        "x": 130,
+        "y": 380,
+        "wires": [
+            [
+                "31da839d.ddef6c"
+            ]
+        ]
+    },
+    {
+        "id": "31da839d.ddef6c",
+        "type": "function",
+        "z": "62f2c48c.3566f4",
+        "name": "",
+        "func": "if(msg.payload){\n    msg.payload = \"Schlüssel wieder da\"\n}else{\n    msg.payload = \"Schlüssel entnommen\"\n}\n\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 310,
+        "y": 380,
         "wires": [
             [
                 "f57a7bf6.efcad8"
