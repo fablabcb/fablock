@@ -7,20 +7,6 @@
         "info": "A Telegram bot that sends notifications whenever someone opens the FabLock"
     },
     {
-        "id": "d42a722c.a107e8",
-        "type": "telegram bot",
-        "z": "",
-        "botname": "FabLock_bot",
-        "usernames": "",
-        "chatids": "-251584757"
-    },
-    {
-        "id": "10886590.8daf5a",
-        "type": "sqlitedb",
-        "z": "",
-        "db": "/home/pi/roseguarden/server/database/roseGuarden.db"
-    },
-    {
         "id": "b9d6559f.4d76f8",
         "type": "rpi-gpio out",
         "z": "62f2c48c.3566f4",
@@ -223,7 +209,7 @@
         "wires": [
             [
                 "99b40361.103268",
-                "bf249ebc.bbd6d"
+                "f85eace9.40d1f"
             ]
         ]
     },
@@ -238,8 +224,8 @@
         "syntax": "plain",
         "template": "Database has changed",
         "output": "str",
-        "x": 350,
-        "y": 620,
+        "x": 450,
+        "y": 720,
         "wires": [
             []
         ]
@@ -256,7 +242,7 @@
         "crontab": "",
         "once": false,
         "onceDelay": 0.1,
-        "x": 280,
+        "x": 580,
         "y": 540,
         "wires": [
             [
@@ -270,11 +256,12 @@
         "z": "62f2c48c.3566f4",
         "mydb": "10886590.8daf5a",
         "name": "roseGuarden.db",
-        "x": 460,
+        "x": 760,
         "y": 580,
         "wires": [
             [
-                "894b418a.d64d58"
+                "894b418a.d64d58",
+                "77b7837c.1cce84"
             ]
         ]
     },
@@ -289,7 +276,7 @@
         "syntax": "plain",
         "template": "SELECT * FROM `action` ORDER BY `date` DESC LIMIT 1",
         "output": "str",
-        "x": 290,
+        "x": 590,
         "y": 580,
         "wires": [
             [
@@ -305,7 +292,7 @@
         "func": "//Prüfen, ob die log id sich gändert hat\nvar id = context.get('id')||0;\ncontext.set('id',msg.payload[0].id);\n\n\n\nif(id != msg.payload[0].id &\n    msg.payload[0].logType == \"Opening request\"){\n    msg.payload = \"Karte von \" + \n    msg.payload[0].userName +\n    \" registriert um \" +\n    msg.payload[0].date;\n    return msg;    \n}\n",
         "outputs": 1,
         "noerr": 0,
-        "x": 680,
+        "x": 980,
         "y": 580,
         "wires": [
             [
@@ -345,5 +332,65 @@
                 "f57a7bf6.efcad8"
             ]
         ]
+    },
+    {
+        "id": "f85eace9.40d1f",
+        "type": "delay",
+        "z": "62f2c48c.3566f4",
+        "name": "rate limit",
+        "pauseType": "rate",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "3",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": true,
+        "x": 300,
+        "y": 580,
+        "wires": [
+            [
+                "91d24043.2b88a8"
+            ]
+        ]
+    },
+    {
+        "id": "91d24043.2b88a8",
+        "type": "delay",
+        "z": "62f2c48c.3566f4",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 440,
+        "y": 580,
+        "wires": [
+            [
+                "bf249ebc.bbd6d"
+            ]
+        ]
+    },
+    {
+        "id": "d42a722c.a107e8",
+        "type": "telegram bot",
+        "z": "",
+        "botname": "FabLock_bot",
+        "usernames": "",
+        "chatids": "-251584757"
+    },
+    {
+        "id": "10886590.8daf5a",
+        "type": "sqlitedb",
+        "z": "",
+        "db": "/home/pi/roseguarden/server/database/roseGuarden.db"
     }
 ]
