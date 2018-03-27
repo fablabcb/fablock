@@ -306,7 +306,7 @@
         "z": "62f2c48c.3566f4",
         "name": "Schlüssel geschaltet",
         "pin": "26",
-        "intype": "tri",
+        "intype": "up",
         "debounce": "25",
         "read": false,
         "x": 130,
