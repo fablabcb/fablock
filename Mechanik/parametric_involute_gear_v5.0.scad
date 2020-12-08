@@ -193,7 +193,7 @@ module bevel_gear (
 			}
 			else
 			{
-				translate ([-1.5*outside_pitch_radius,-1.5*outside_pitch_radius,0])
+				* translate ([-1.5*outside_pitch_radius,-1.5*outside_pitch_radius,0])
 				cube ([3*outside_pitch_radius,
 					3*outside_pitch_radius,
 					bevel_gear_flat_height]);
@@ -332,13 +332,13 @@ module gear (
 	rim_radius = root_radius - rim_width;
 
 	// Variables controlling the circular holes in the gear.
-	circle_orbit_diameter=hub_diameter/2+rim_radius;
+	circle_orbit_diameter=hub_diameter/2+rim_radius*1.1;
 	circle_orbit_curcumference=pi*circle_orbit_diameter;
 
 	// Limit the circle size to 90% of the gear face.
 	circle_diameter=
 		min (
-			0.70*circle_orbit_curcumference/circles,
+			0.85*circle_orbit_curcumference/circles,
 			(rim_radius-hub_diameter/2)*0.9);
 
 	difference ()

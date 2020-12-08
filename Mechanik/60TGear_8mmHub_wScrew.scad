@@ -10,7 +10,7 @@ flanges = 0; // the rims that keep the belt from going anywhere
 hubSetScewDiameter = 3; // use either a set screw or nut on a shaft. Set to 0 to not use a set screw.
 numSetScrews = 1;
 
-
+difference(){
 difference(){
   union(){
     translate([0,0,-6]) gear (number_of_teeth=60,
@@ -18,13 +18,18 @@ difference(){
       gear_thickness = 6,
       rim_thickness = 6,
       hub_thickness = 6,
-      circles=4);
+      circles=3);
     hub(hubDiameter,hubHeight,hubSetScewDiameter);
   }
  cylinder(d=shaftDiameter, h=50, center=true);
-  
+}
+
+union(){
+  for(i = [1:3]){
+    
+    rotate([0,0,i*360/3+360/3/2]) translate([58,0,-2]) cylinder(10,r=17 , center=true);
+  }
+}
+
 };
-			
-
-
-  
+//cylinder(10,d=500, center=true);
