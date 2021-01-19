@@ -532,17 +532,6 @@ Wire Wire Line
 	9100 7550 9200 7550
 Wire Wire Line
 	9200 7650 9100 7650
-$Comp
-L SparkFun-Connectors:M04JST-PTH J2
-U 1 1 5FDE6807
-P 9400 7450
-F 0 "J2" H 9172 7454 50  0000 R CNN
-F 1 "M04JST-PTH" H 9172 7545 50  0000 R CNN
-F 2 "JST-4-PTH" H 9430 7600 20  0001 C CNN
-F 3 "" H 9400 7450 60  0000 C CNN
-	1    9400 7450
-	-1   0    0    1   
-$EndComp
 Text Label 5900 6450 2    50   ~ 0
 P12V
 Text Label 6000 6450 0    50   ~ 0
@@ -657,10 +646,10 @@ NoConn ~ 8200 7750
 NoConn ~ 8200 7850
 NoConn ~ 8200 7950
 $Comp
-L Switch:SW_Push_Open SW_MWO1
+L Switch:SW_Push_Open SW1
 U 1 1 5FE5E938
 P 12250 7050
-F 0 "SW_MWO1" H 12250 7265 50  0000 C CNN
+F 0 "SW1" H 12250 7265 50  0000 C CNN
 F 1 "SW_Push_Open" H 12250 7174 50  0000 C CNN
 F 2 "" H 12250 7250 50  0001 C CNN
 F 3 "~" H 12250 7250 50  0001 C CNN
@@ -668,36 +657,36 @@ F 3 "~" H 12250 7250 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L Switch:SW_Push_Open SW_MWC1
+L Switch:SW_Push_Open SW3
 U 1 1 5FE5F096
-P 12250 7400
-F 0 "SW_MWC1" H 12250 7615 50  0000 C CNN
-F 1 "SW_Push_Open" H 12250 7524 50  0000 C CNN
-F 2 "" H 12250 7600 50  0001 C CNN
-F 3 "~" H 12250 7600 50  0001 C CNN
-	1    12250 7400
+P 12250 7900
+F 0 "SW3" H 12250 8115 50  0000 C CNN
+F 1 "SW_Push_Open" H 12250 8024 50  0000 C CNN
+F 2 "" H 12250 8100 50  0001 C CNN
+F 3 "~" H 12250 8100 50  0001 C CNN
+	1    12250 7900
 	1    0    0    -1  
 $EndComp
 $Comp
-L Switch:SW_Push SW_WIN1
+L Switch:SW_Push SW2
 U 1 1 5FE63456
-P 12250 7850
-F 0 "SW_WIN1" H 12250 8135 50  0000 C CNN
-F 1 "SW_Push" H 12250 8044 50  0000 C CNN
-F 2 "" H 12250 8050 50  0001 C CNN
-F 3 "~" H 12250 8050 50  0001 C CNN
-	1    12250 7850
+P 12250 7500
+F 0 "SW2" H 12250 7785 50  0000 C CNN
+F 1 "SW_Push" H 12250 7694 50  0000 C CNN
+F 2 "" H 12250 7700 50  0001 C CNN
+F 3 "~" H 12250 7700 50  0001 C CNN
+	1    12250 7500
 	1    0    0    -1  
 $EndComp
 Text Notes 10650 6700 0    50   ~ 0
 generell: Motor wird bewegt wenn Strom fließt\n(um Fehlerfall "Taster Kabel gekappt" abzufangen)\n\ndarum sind MotorWindowOpen/Close (SW_MWO,SW_MWC)\nvom Push_Open Typ\n\nund Window (SW_WIN) simpel vom Push Typ
-Text Label 10650 7350 0    50   ~ 0
+Text Label 10650 7150 0    50   ~ 0
 P3V3
 Text Label 10650 7050 0    50   ~ 0
 IN_MWO
-Text Label 10650 7150 0    50   ~ 0
+Text Label 10650 7500 0    50   ~ 0
 IN_MWC
-Text Label 10650 7250 0    50   ~ 0
+Text Label 10650 7900 0    50   ~ 0
 IN_WIN
 Text Label 4400 3950 2    50   ~ 0
 IN_MWC
@@ -716,8 +705,8 @@ L pspice:R R1
 U 1 1 5FE9D008
 P 6200 7950
 F 0 "R1" V 5995 7950 50  0000 C CNN
-F 1 "R" V 6086 7950 50  0000 C CNN
-F 2 "" H 6200 7950 50  0001 C CNN
+F 1 "5K" V 6086 7950 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder" H 6200 7950 50  0001 C CNN
 F 3 "~" H 6200 7950 50  0001 C CNN
 	1    6200 7950
 	0    1    1    0   
@@ -727,8 +716,8 @@ L pspice:R R2
 U 1 1 5FE9ECF4
 P 6200 8050
 F 0 "R2" V 5995 8050 50  0000 C CNN
-F 1 "R" V 6086 8050 50  0000 C CNN
-F 2 "" H 6200 8050 50  0001 C CNN
+F 1 "5K" V 6086 8050 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder" H 6200 8050 50  0001 C CNN
 F 3 "~" H 6200 8050 50  0001 C CNN
 	1    6200 8050
 	0    1    1    0   
@@ -738,8 +727,8 @@ L pspice:R R3
 U 1 1 5FE9F166
 P 6200 8150
 F 0 "R3" V 5995 8150 50  0000 C CNN
-F 1 "R" V 6086 8150 50  0000 C CNN
-F 2 "" H 6200 8150 50  0001 C CNN
+F 1 "5K" V 6086 8150 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder" H 6200 8150 50  0001 C CNN
 F 3 "~" H 6200 8150 50  0001 C CNN
 	1    6200 8150
 	0    1    1    0   
@@ -747,12 +736,12 @@ $EndComp
 $Comp
 L power:GND #PWR0105
 U 1 1 5FE9FB7E
-P 5950 8250
-F 0 "#PWR0105" H 5950 8000 50  0001 C CNN
-F 1 "GND" V 5955 8122 50  0000 R CNN
-F 2 "" H 5950 8250 50  0001 C CNN
-F 3 "" H 5950 8250 50  0001 C CNN
-	1    5950 8250
+P 6650 8250
+F 0 "#PWR0105" H 6650 8000 50  0001 C CNN
+F 1 "GND" V 6655 8122 50  0000 R CNN
+F 2 "" H 6650 8250 50  0001 C CNN
+F 3 "" H 6650 8250 50  0001 C CNN
+	1    6650 8250
 	0    -1   -1   0   
 $EndComp
 Text Label 6950 7950 2    50   ~ 0
@@ -767,11 +756,11 @@ Wire Wire Line
 	6450 8050 6950 8050
 Wire Wire Line
 	6950 7950 6450 7950
-Text Label 4400 2550 2    50   ~ 0
+Text Label 800  2850 0    50   ~ 0
 LED_OPEN
-Text Label 4400 2650 2    50   ~ 0
+Text Label 800  2950 0    50   ~ 0
 LED_CLOSED
-Text Label 4400 2750 2    50   ~ 0
+Text Label 800  2750 0    50   ~ 0
 LED_MOVING
 Wire Wire Line
 	4400 2750 3200 2750
@@ -783,134 +772,50 @@ Text Notes 6300 5550 2    118  ~ 24
 FabLock
 Text Notes 11000 6100 2    59   ~ 12
 Switches\n
-Wire Wire Line
-	11000 7050 10650 7050
-Wire Wire Line
-	10650 7150 11000 7150
-Wire Wire Line
-	11000 7250 10650 7250
-Wire Wire Line
-	10650 7350 11000 7350
-$Comp
-L Connector:Conn_01x04_Male J8
-U 1 1 5FF23490
-P 11200 7250
-F 0 "J8" H 11250 6950 50  0000 R CNN
-F 1 "Conn_01x04_Male" H 11172 7223 50  0001 R CNN
-F 2 "" H 11200 7250 50  0001 C CNN
-F 3 "~" H 11200 7250 50  0001 C CNN
-	1    11200 7250
-	-1   0    0    1   
-$EndComp
-$Comp
-L Connector:Conn_01x04_Female J10
-U 1 1 5FF24CCE
-P 11450 7250
-F 0 "J10" H 11450 6950 50  0000 C CNN
-F 1 "Conn_01x04_Female" H 11342 6916 50  0001 C CNN
-F 2 "" H 11450 7250 50  0001 C CNN
-F 3 "~" H 11450 7250 50  0001 C CNN
-	1    11450 7250
-	-1   0    0    1   
-$EndComp
-Wire Wire Line
-	11650 7050 12050 7050
-Wire Wire Line
-	11650 7150 11900 7150
-Wire Wire Line
-	11900 7150 11900 7400
-Wire Wire Line
-	11900 7400 12050 7400
-Wire Wire Line
-	11650 7250 11800 7250
-Wire Wire Line
-	11800 7250 11800 7850
-Wire Wire Line
-	11800 7850 12050 7850
-Wire Wire Line
-	11650 7350 11650 8000
-Wire Wire Line
-	11650 8000 12750 8000
-Wire Wire Line
-	12750 8000 12750 7850
-Wire Wire Line
-	12750 7050 12450 7050
-Wire Wire Line
-	12450 7400 12750 7400
-Connection ~ 12750 7400
-Wire Wire Line
-	12750 7400 12750 7050
-Wire Wire Line
-	12450 7850 12750 7850
-Connection ~ 12750 7850
-Wire Wire Line
-	12750 7850 12750 7400
-$Comp
-L Connector:Conn_01x04_Male J5
-U 1 1 5FF4943A
-P 5750 8050
-F 0 "J5" H 5750 8250 50  0000 C CNN
-F 1 "Conn_01x04_Male" H 5858 8240 50  0001 C CNN
-F 2 "" H 5750 8050 50  0001 C CNN
-F 3 "~" H 5750 8050 50  0001 C CNN
-	1    5750 8050
-	1    0    0    -1  
-$EndComp
-$Comp
-L Connector:Conn_01x04_Female J4
-U 1 1 5FF4A11F
-P 5600 8050
-F 0 "J4" H 5550 8250 50  0000 L CNN
-F 1 "Conn_01x04_Female" H 5628 7935 50  0001 L CNN
-F 2 "" H 5600 8050 50  0001 C CNN
-F 3 "~" H 5600 8050 50  0001 C CNN
-	1    5600 8050
-	1    0    0    -1  
-$EndComp
 $Comp
 L Device:LED D1
 U 1 1 5FF4B1A2
-P 5250 7950
-F 0 "D1" H 5243 7695 50  0000 C CNN
-F 1 "LED" H 5243 7786 50  0000 C CNN
-F 2 "" H 5250 7950 50  0001 C CNN
-F 3 "~" H 5250 7950 50  0001 C CNN
-	1    5250 7950
+P 5800 7950
+F 0 "D1" H 5793 7695 50  0000 C CNN
+F 1 "LED" H 5793 7786 50  0000 C CNN
+F 2 "LED_THT:LED_D5.0mm" H 5800 7950 50  0001 C CNN
+F 3 "~" H 5800 7950 50  0001 C CNN
+	1    5800 7950
 	-1   0    0    1   
 $EndComp
 $Comp
 L Device:LED D2
 U 1 1 5FF4BA2C
-P 5250 8050
-F 0 "D2" H 5243 7795 50  0000 C CNN
-F 1 "LED" H 5243 7886 50  0000 C CNN
-F 2 "" H 5250 8050 50  0001 C CNN
-F 3 "~" H 5250 8050 50  0001 C CNN
-	1    5250 8050
+P 5800 8050
+F 0 "D2" H 5793 7795 50  0000 C CNN
+F 1 "LED" H 5793 7886 50  0000 C CNN
+F 2 "LED_THT:LED_D5.0mm" H 5800 8050 50  0001 C CNN
+F 3 "~" H 5800 8050 50  0001 C CNN
+	1    5800 8050
 	-1   0    0    1   
 $EndComp
 $Comp
 L Device:LED D3
 U 1 1 5FF4C04A
-P 5250 8150
-F 0 "D3" H 5243 7895 50  0000 C CNN
-F 1 "LED" H 5243 7986 50  0000 C CNN
-F 2 "" H 5250 8150 50  0001 C CNN
-F 3 "~" H 5250 8150 50  0001 C CNN
-	1    5250 8150
+P 5800 8150
+F 0 "D3" H 5793 7895 50  0000 C CNN
+F 1 "LED" H 5793 7986 50  0000 C CNN
+F 2 "LED_THT:LED_D5.0mm" H 5800 8150 50  0001 C CNN
+F 3 "~" H 5800 8150 50  0001 C CNN
+	1    5800 8150
 	-1   0    0    1   
 $EndComp
 Wire Wire Line
-	5100 7950 5100 8050
+	5650 7950 5650 8050
 Wire Wire Line
-	5100 8050 5100 8150
-Connection ~ 5100 8050
+	5650 8050 5650 8150
+Connection ~ 5650 8050
 Wire Wire Line
-	5100 8150 5100 8250
+	5650 8150 5650 8250
 Wire Wire Line
-	5100 8250 5400 8250
-Connection ~ 5100 8150
-Text Notes 6150 6050 2    59   ~ 12
+	5650 8250 6650 8250
+Connection ~ 5650 8150
+Text Notes 6150 6100 2    59   ~ 12
 Power Supply
 Text Notes 8400 6100 2    59   ~ 12
 Motor Driver\n
@@ -932,7 +837,7 @@ U 1 1 5FFC569D
 P 5750 8650
 F 0 "J6" H 5750 8900 50  0000 C CNN
 F 1 "Conn_01x04_Male" H 5858 8840 50  0001 C CNN
-F 2 "" H 5750 8650 50  0001 C CNN
+F 2 "Connector_JST:JST_EH_S4B-EH_1x04_P2.50mm_Horizontal" H 5750 8650 50  0001 C CNN
 F 3 "~" H 5750 8650 50  0001 C CNN
 	1    5750 8650
 	1    0    0    -1  
@@ -956,37 +861,6 @@ Wire Wire Line
 	6850 8550 5950 8550
 Wire Wire Line
 	6850 8650 5950 8650
-NoConn ~ 5950 8750
-Text Label 4400 3750 2    50   ~ 0
-OUT_BEEPER
-Wire Wire Line
-	4400 3750 3200 3750
-$Comp
-L Connector:Conn_01x02_Male J7
-U 1 1 5FFE4ABF
-P 5750 9250
-F 0 "J7" H 5858 9431 50  0000 C CNN
-F 1 "Conn_Beeper" H 5858 9340 50  0000 C CNN
-F 2 "" H 5750 9250 50  0001 C CNN
-F 3 "~" H 5750 9250 50  0001 C CNN
-	1    5750 9250
-	1    0    0    -1  
-$EndComp
-$Comp
-L power:GND #PWR0107
-U 1 1 5FFE5339
-P 5950 9350
-F 0 "#PWR0107" H 5950 9100 50  0001 C CNN
-F 1 "GND" V 5955 9222 50  0000 R CNN
-F 2 "" H 5950 9350 50  0001 C CNN
-F 3 "" H 5950 9350 50  0001 C CNN
-	1    5950 9350
-	0    -1   -1   0   
-$EndComp
-Text Label 6600 9250 2    50   ~ 0
-OUT_BEEPER
-Wire Wire Line
-	6600 9250 5950 9250
 $Bitmap
 Pos 12700 3000
 Scale 1.000000
@@ -14176,5 +14050,181 @@ EC 11 34 65 6A 68 68 68 68 68 EC 11 34 65 6A 68 68 68 68 68 EC 11 34 65 6A 68 68
 EndData
 $EndBitmap
 Text Notes 8400 9950 0    50   ~ 0
-* ENABLE schaltet nur FETs aus, also immer AN machen, da SLEEP die FETs auch aus macht \n(und noch mehr) (wake up time 1 ms beachten!)\n* LEDs direkt auf Platine (die von außen sichtbar anzubringen ist) (und Platine beschriften)\n* Switches auf 2 polige connectors umstellen (weil unterschiedlich lange kabellängen etc)\n* Beeper Verstärker? (PWM reicht eig)\n* Beeper auch noch unnötig, da Schlüsselschalter fehlt (und im mehrräumigem Lab auch wenig Sinn macht)\n* mehr Zahnräder, Lichteffekte und SteamPunk für ne gute Show\n (SESAME_OPENING, SESAME_CLOSING)\n  * dafür 2. motor treiber "slot"? bekommt selbes step\dir\slp\en signal um irgwas damit zu machen\n\n\n
+* ENABLE schaltet nur FETs aus, also immer AN machen, da SLEEP die FETs auch aus macht \n(und noch mehr) (wake up time 1 ms beachten!)\n* LEDs direkt auf Platine (die von außen sichtbar anzubringen ist) (und Platine beschriften)\n* Beeper auch noch unnötig, da Schlüsselschalter fehlt (und im mehrräumigem Lab auch wenig Sinn macht)\n* mehr Zahnräder, Lichteffekte und SteamPunk für ne gute Show\n (SESAME_OPENING, SESAME_CLOSING)\n  * dafür 2. motor treiber "slot"? bekommt selbes step\dir\slp\en signal um irgwas damit zu machen\n\n\n
+$Comp
+L Connector:Conn_01x02_Female J14
+U 1 1 6007E80A
+P 11450 8000
+F 0 "J14" H 11342 7767 50  0000 C CNN
+F 1 "Conn_01x02_Female" H 11342 7766 50  0001 C CNN
+F 2 "" H 11450 8000 50  0001 C CNN
+F 3 "~" H 11450 8000 50  0001 C CNN
+	1    11450 8000
+	-1   0    0    1   
+$EndComp
+$Comp
+L Connector:Conn_01x02_Female J13
+U 1 1 6007D4DF
+P 11450 7600
+F 0 "J13" H 11350 7350 50  0000 C CNN
+F 1 "Conn_01x02_Female" H 11700 7600 50  0001 C CNN
+F 2 "" H 11450 7600 50  0001 C CNN
+F 3 "~" H 11450 7600 50  0001 C CNN
+	1    11450 7600
+	-1   0    0    1   
+$EndComp
+Text Label 10650 7600 0    50   ~ 0
+P3V3
+Text Label 10650 8000 0    50   ~ 0
+P3V3
+Wire Wire Line
+	12050 7050 11650 7050
+Wire Wire Line
+	11650 7150 12450 7150
+Wire Wire Line
+	12450 7150 12450 7050
+Wire Wire Line
+	11650 7500 12050 7500
+Wire Wire Line
+	12450 7500 12450 7600
+Wire Wire Line
+	12450 7600 11650 7600
+Wire Wire Line
+	11650 7900 12050 7900
+Wire Wire Line
+	12450 7900 12450 8000
+Wire Wire Line
+	12450 8000 11650 8000
+$Comp
+L Connector:Conn_01x02_Male J8
+U 1 1 600EC26D
+P 11350 7150
+F 0 "J8" H 11450 6900 50  0000 R CNN
+F 1 "Conn_01x02_Male" H 11458 7240 50  0001 C CNN
+F 2 "Connector_JST:JST_EH_S2B-EH_1x02_P2.50mm_Horizontal" H 11350 7150 50  0001 C CNN
+F 3 "~" H 11350 7150 50  0001 C CNN
+	1    11350 7150
+	-1   0    0    1   
+$EndComp
+$Comp
+L Connector:Conn_01x02_Male J11
+U 1 1 600ECB3A
+P 11350 8000
+F 0 "J11" H 11400 7750 50  0000 R CNN
+F 1 "Conn_01x02_Male" H 11458 8090 50  0001 C CNN
+F 2 "Connector_JST:JST_EH_S2B-EH_1x02_P2.50mm_Horizontal" H 11350 8000 50  0001 C CNN
+F 3 "~" H 11350 8000 50  0001 C CNN
+	1    11350 8000
+	-1   0    0    1   
+$EndComp
+$Comp
+L Connector:Conn_01x02_Male J10
+U 1 1 600ECF1B
+P 11350 7600
+F 0 "J10" H 11400 7350 50  0000 R CNN
+F 1 "Conn_01x02_Male" H 11458 7690 50  0001 C CNN
+F 2 "Connector_JST:JST_EH_S2B-EH_1x02_P2.50mm_Horizontal" H 11350 7600 50  0001 C CNN
+F 3 "~" H 11350 7600 50  0001 C CNN
+	1    11350 7600
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	10650 7150 11150 7150
+Wire Wire Line
+	10650 7050 11150 7050
+Wire Wire Line
+	11150 7500 10650 7500
+Wire Wire Line
+	10650 7600 11150 7600
+Wire Wire Line
+	11150 7900 10650 7900
+$Comp
+L Connector:Conn_01x02_Female J12
+U 1 1 6007C901
+P 11450 7150
+F 0 "J12" H 11400 6900 50  0000 L CNN
+F 1 "Conn_01x02_Female" H 11100 6900 50  0001 L CNN
+F 2 "" H 11450 7150 50  0001 C CNN
+F 3 "~" H 11450 7150 50  0001 C CNN
+	1    11450 7150
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	10650 8000 11150 8000
+$Comp
+L Switch:SW_Push_Open SW4
+U 1 1 6014CC51
+P 12250 8300
+F 0 "SW4" H 12250 8515 50  0000 C CNN
+F 1 "SW_Key" H 12250 8424 50  0000 C CNN
+F 2 "" H 12250 8500 50  0001 C CNN
+F 3 "~" H 12250 8500 50  0001 C CNN
+	1    12250 8300
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector:Conn_01x02_Female J16
+U 1 1 60152BA1
+P 11450 8400
+F 0 "J16" H 11342 8167 50  0000 C CNN
+F 1 "Conn_01x02_Female" H 11342 8166 50  0001 C CNN
+F 2 "" H 11450 8400 50  0001 C CNN
+F 3 "~" H 11450 8400 50  0001 C CNN
+	1    11450 8400
+	-1   0    0    1   
+$EndComp
+$Comp
+L Connector:Conn_01x02_Male J15
+U 1 1 601534F0
+P 11350 8400
+F 0 "J15" H 11400 8150 50  0000 R CNN
+F 1 "Conn_01x02_Male" H 11458 8490 50  0001 C CNN
+F 2 "Connector_JST:JST_EH_S2B-EH_1x02_P2.50mm_Horizontal" H 11350 8400 50  0001 C CNN
+F 3 "~" H 11350 8400 50  0001 C CNN
+	1    11350 8400
+	-1   0    0    1   
+$EndComp
+Text Label 10650 8400 0    50   ~ 0
+P3V3
+Wire Wire Line
+	11150 8400 10650 8400
+Wire Wire Line
+	11650 8300 12050 8300
+Wire Wire Line
+	11650 8400 12450 8400
+Wire Wire Line
+	12450 8400 12450 8300
+Text Label 10650 8300 0    50   ~ 0
+IN_KEY
+Wire Wire Line
+	10650 8300 11150 8300
+Text Label 4350 3450 2    50   ~ 0
+IN_KEY
+Text Label 6850 8750 2    50   ~ 0
+OUT_SESAME_OPEN
+Wire Wire Line
+	6850 8750 5950 8750
+Text Label 4400 3250 2    50   ~ 0
+OUT_SESAME_OPEN
+Wire Wire Line
+	4400 3250 3200 3250
+Wire Wire Line
+	4350 3450 3200 3450
+$Comp
+L Connector:Conn_01x04_Male J2
+U 1 1 601CC2A6
+P 9400 7550
+F 0 "J2" H 9372 7432 50  0000 R CNN
+F 1 "Conn_01x04_Male" H 9372 7523 50  0000 R CNN
+F 2 "Connector_JST:JST_EH_S4B-EH_1x04_P2.50mm_Horizontal" H 9400 7550 50  0001 C CNN
+F 3 "~" H 9400 7550 50  0001 C CNN
+	1    9400 7550
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	2000 2750 800  2750
+Wire Wire Line
+	800  2850 2000 2850
+Wire Wire Line
+	2000 2950 800  2950
 $EndSCHEMATC
