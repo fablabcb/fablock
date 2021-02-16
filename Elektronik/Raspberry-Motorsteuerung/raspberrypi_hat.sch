@@ -90,17 +90,6 @@ F 3 "" H 6150 2400 50  0000 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L raspberrypi_hat:DMMT5401 Q2
-U 1 1 58E1538B
-P 5850 3000
-F 0 "Q2" H 6050 3075 50  0000 L CNN
-F 1 "DMMT5401" H 6050 3000 50  0000 L CNN
-F 2 "Package_TO_SOT_SMD:SOT-23-6" H 6050 2925 50  0000 L CIN
-F 3 "" H 5850 3000 50  0000 L CNN
-	1    5850 3000
-	-1   0    0    1   
-$EndComp
-$Comp
 L Device:R R23
 U 1 1 58E15896
 P 5750 3600
@@ -152,8 +141,6 @@ Wire Wire Line
 	6150 3300 6550 3300
 Wire Wire Line
 	5750 3200 5750 3350
-Wire Wire Line
-	6050 3000 6050 3350
 Wire Wire Line
 	5750 3350 6050 3350
 Connection ~ 5750 3350
@@ -14215,4 +14202,17 @@ Wire Wire Line
 	5650 7900 5650 8200
 Text Notes 5450 8700 0    59   ~ 12
 Zukunftsmusik
+Wire Wire Line
+	6050 3000 6050 3350
+$Comp
+L raspberrypi_hat:DMMT5401 Q2
+U 1 1 58E1538B
+P 5850 3000
+F 0 "Q2" H 6050 3075 50  0000 L CNN
+F 1 "DMMT5401" H 6050 3000 50  0000 L CNN
+F 2 "Package_TO_SOT_SMD:SOT-23-6" H 6050 2925 50  0000 L CIN
+F 3 "" H 5850 3000 50  0000 L CNN
+	1    5850 3000
+	-1   0    0    1   
+$EndComp
 $EndSCHEMATC
