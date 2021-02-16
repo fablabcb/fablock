@@ -1,4 +1,4 @@
-21530687043582756
+21529075345433756
 Battery
 BatteryHolder_Bulgin_BX0036_1xC
 Bulgin Battery Holder, BX0036, Battery Type C (https://www.bulgin.com/products/pub/media/bulgin/data/Battery_holders.pdf)
@@ -79275,16 +79275,16 @@ SparkFun-Connectors
 40
 40
 SparkFun-Connectors
-2X03
-PIN HEADER
-PIN HEADER
+2X3
+
+
 0
 6
 6
 SparkFun-Connectors
-2X3
-
-
+2X03
+PIN HEADER
+PIN HEADER
 0
 6
 6
@@ -81249,13 +81249,6 @@ SO08WIDE
 8
 8
 SparkFun-DigitalIC
-SO14
-
-
-0
-14
-14
-SparkFun-DigitalIC
 SO014
 
 
@@ -81263,16 +81256,23 @@ SO014
 14
 14
 SparkFun-DigitalIC
-SO016
+SO14
 
 
 0
-16
-16
+14
+14
 SparkFun-DigitalIC
 SO16
 SMALL OUTLINE PACKAGE 150 MIL
 SMALL OUTLINE PACKAGE 150 MIL
+0
+16
+16
+SparkFun-DigitalIC
+SO016
+
+
 0
 16
 16
@@ -93612,13 +93612,6 @@ varistor SIOV
 2
 project_footprints
 NPTH_3mm_ID
-
-
-0
-0
-0
-project_footprints
-fablabcb_logo
 
 
 0
