@@ -69,7 +69,7 @@
     (aux_axis_origin 0 0)
     (visible_elements 7FFFFEFF)
     (pcbplotparams
-      (layerselection 0x010f0_fffffff9)
+      (layerselection 0x010f0_ffffffff)
       (usegerberextensions false)
       (usegerberattributes false)
       (usegerberadvancedattributes false)
@@ -2141,7 +2141,7 @@
   (segment (start 131.064 109.006) (end 129.58 110.49) (width 0.2) (layer B.Cu) (net 31) (status 20))
   (segment (start 131.064 100.942) (end 131.064 109.006) (width 0.2) (layer B.Cu) (net 31))
 
-  (zone (net 6) (net_name /P5V_HAT) (layer F.Cu) (tstamp 602C7C0A) (hatch edge 0.508)
+  (zone (net 6) (net_name /P5V_HAT) (layer F.Cu) (tstamp 602C7C10) (hatch edge 0.508)
     (connect_pads yes (clearance 0.2))
     (min_thickness 0.2)
     (fill yes (arc_segments 32) (thermal_gap 0.508) (thermal_bridge_width 0.508))
