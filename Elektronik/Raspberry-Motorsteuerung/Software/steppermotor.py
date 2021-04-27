@@ -1,7 +1,13 @@
 from time import sleep
+
+# http://abyz.me.uk/rpi/pigpio/
 import pigpio
 
-## TODO halting states, when f.e. closing, but window opened, should sleep motor
+## TODO
+# * integrate telegram bot here, maybe: https://python-telegram-bot.org/
+#   using: https://python-telegram-bot.readthedocs.io/en/latest/telegram.ext.commandhandler.html
+# * create enter_xyz_state functions from .drawio diagram
+# * create STATE switch/case for switching states according to .drawio diagram
 
 ## Pin Numbering Scheme: BCM
 
@@ -25,7 +31,7 @@ SW_MWC = 22 # window handle in locked position (stop motor if low, if switch is 
 # TODO determine whether key is retained in open or closed state
 SW_KEY = 17 # key switch
 
-# push type (high if pushed, normally open NO)d
+# push type (high if pushed, normally open NO)
 SW_WIN = 26 # window open (stop motor if low, if switch is not pressed)
 
 # future external signals
