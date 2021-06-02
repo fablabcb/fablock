@@ -1,31 +1,41 @@
-from config import *
-import states
+import config
+from states import *
 import telegram
 
-globals().update(states.State.__members__)
+globals().update(State.__members__)
 
 
-setup()
+config.setup()
 
 
 
-telegram_setup(telegram.telegram_callback)
+telegram.telegram_setup(telegram.telegram_callback)
 
-closing_halted()
+enter_closing_halted()
 
 try:
     while True:
+        #printD(config.state)
         cases = {
-            LOCKED: lambda: pass
-        }
-        cases[state]()
-        sleep(.1)
+            #LOCKED: lambda: pass,
+            UNLOCKED: leave_unlocked,
+            OPENING_HALTED: leave_opening_halted,
+            OPENING: leave_opening,
+            CLOSING_HALTED: leave_closing_halted,
+            CLOSING: leave_closing,
+            LOCKED: enter_opening_halted#config.noop
+                    
+        }[config.state]()
+        config.sleep(.1)
 
 
 
 
 except KeyboardInterrupt:
-    enableMotor(False)
     print ("\nCtrl-C pressed.  Stopping PIGPIO and exiting...")
 finally:
-    pi.stop()
+    config.enableMotor(False)
+    config.pi.write(config.LED_OPEN, 0)
+    config.pi.write(config.LED_CLOSED, 0)    
+    config.blinkLED(config.LED_MOVING, False)
+    config.pi.stop()

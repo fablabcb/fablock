@@ -3,7 +3,9 @@ from time import sleep
 # http://abyz.me.uk/rpi/pigpio/
 import pigpio
 
-
+enter_time = 0.0
+state = 5
+debug = True
 
 ## Pin Numbering Scheme: BCM
 
@@ -12,6 +14,14 @@ DIR = 5 # Direction GPIO Pin
 STEP = 12 # Step GPIO Pin
 SLEEP = 13 # 0 for sleep
 ENABLE = 19 # 0 for enable
+MOTOR_FREQ = 600 # 500 pulses per second (<= 1000 Hz is good for our slim stepper motor)
+MOTOR_DUTY = 128 # 128 is 50% of 256 (50% off time)
+
+OPENING = 1 # TODO check if direction is mechanically opening
+CLOSING = 0 
+
+UNLOCKED_TIMEOUT = 10 # TODO längeren Timeout einstellen
+MOVING_HALTED_TIMEOUT = 10 # TODO
 
 # LEDs
 LED_OPEN = 4
@@ -61,14 +71,22 @@ def setup():
     pi.set_pull_up_down(SW_WIN, pigpio.PUD_DOWN)
     pi.set_pull_up_down(SW_KEY, pigpio.PUD_DOWN)
 
-    # Set frequency
-    pi.set_PWM_frequency(STEP, 600)  # 500 pulses per second (<= 1000 Hz is good for our slim stepper motor)
 
 # enable Polulu driver (pass false, to disable)
 def enableMotor(state=True):
   pi.write(SLEEP, state)
   pi.write(ENABLE, not state)
-  pi.set_PWM_dutycycle(STEP, 128 if state else 0)
+  pi.hardware_PWM(STEP, MOTOR_FREQ, MOTOR_DUTY if state else 0) 
 
+def setDirection(direction):
+    pi.write(DIR, direction)
 
-
+def blinkLED(LED, on=True):
+    if on:
+        pi.set_PWM_frequency(LED, 0)
+        pi.set_PWM_dutycycle(LED, 64)
+    else:
+        pi.set_PWM_dutycycle(LED, 0)
+        
+def noop():
+    pass
