@@ -7,6 +7,8 @@
 * verify direction "opening" is right in config.setDirectionOpening
 * adjust timeouts
 * implement Sesame
+* name window state (window_open=0, window_closed=1) (fix IN_WIN high/low confusion)
+* same for MWO and MWC?
 
 * `main.py`: main routine
 * `config.py`: setup 
