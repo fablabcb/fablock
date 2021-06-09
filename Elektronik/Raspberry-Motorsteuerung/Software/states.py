@@ -1,11 +1,13 @@
 from enum import Enum
 import time
 import config
+import telegram_bot
 
 
 def printD(message):
     if config.debug:
         print(message)
+        telegram_bot.message(message)
 
 
 class State(Enum):
@@ -38,7 +40,7 @@ def enter_unlocked():
     # TODO send telegram message
 
 def leave_unlocked():
-    if time.perf_counter() > config.enter_time + config.UNLOCKED_TIMEOUT or  config.pi.read(config.SW_WIN) == 0: 
+    if time.perf_counter() > config.enter_time + config.UNLOCKED_TIMEOUT or  config.window_open(): 
         enter_closing_halted()
         
 def enter_opening():
@@ -52,9 +54,9 @@ def enter_opening():
     # TODO send Telegram message "opening"
     
 def leave_opening():
-    if config.pi.read(config.SW_WIN) == 0:
+    if config.window_open():
        enter_opening_halted()
-    elif config.pi.read(config.SW_MWO) == 0:
+    elif config.endstop_unlocked_reached():
        enter_unlocked()
 
 def enter_opening_halted():
@@ -69,7 +71,7 @@ def enter_opening_halted():
 def leave_opening_halted():
     if time.perf_counter() > config.enter_time + config.MOVING_HALTED_TIMEOUT:
         enter_opening_halted_timeout()
-    elif config.pi.read(config.SW_WIN) == 1:
+    elif not config.window_open():
         enter_opening()
     
 def enter_opening_halted_timeout():
@@ -89,7 +91,7 @@ def enter_closing_halted():
 def leave_closing_halted():
     if time.perf_counter() > config.enter_time + config.MOVING_HALTED_TIMEOUT:
         enter_closing_halted_timeout()
-    elif config.pi.read(config.SW_WIN) == 1:
+    elif not config.window_open():
         enter_closing()
 
 def enter_closing_halted_timeout():
@@ -107,9 +109,9 @@ def enter_closing():
     config.blinkLED(config.LED_MOVING)
     
 def leave_closing():
-    if config.pi.read(config.SW_WIN) == 0:
+    if config.window_open():
        enter_closing_halted()
-    elif config.pi.read(config.SW_MWC) == 0:
+    elif config.endstop_locked_reached():
        enter_locked()
 
 def enter_locked():
@@ -119,5 +121,7 @@ def enter_locked():
     config.blinkLED(config.LED_MOVING, False)
     config.pi.write(config.LED_OPEN, 0)
     config.pi.write(config.LED_CLOSED, 1)
+    telegram_bot.update = None
+    telegram_bot.context = None
     # TODO send telegram message
 

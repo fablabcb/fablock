@@ -34,11 +34,22 @@ LED_CLOSED = 15
 SW_MWO = 27 # window handle in unlocked position (stop motor if low, if switch is pressed)
 SW_MWC = 22 # window handle in locked position (stop motor if low, if switch is pressed)
 
+def endstop_unlocked_reached():
+    return pi.read(SW_MWO) == 0
+    
+def endstop_locked_reached():
+    return pi.read(SW_MWC) == 0
+    
 # TODO determine whether key is retained in open or closed state
 SW_KEY = 17 # key switch
 
 # push type (high if pushed, normally open NO)
 SW_WIN = 26 # window open (stop motor if low, if switch is not pressed)
+SW_WIN_OPEN = 0
+SW_WIN_CLOSED = 1
+def window_open():
+    return pi.read(SW_WIN) == 0
+
 
 # future external signals
 SESAME_OPEN    = 16

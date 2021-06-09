@@ -1,6 +1,6 @@
 import config
 from states import *
-import telegram
+import telegram_bot
 
 globals().update(State.__members__)
 
@@ -9,7 +9,7 @@ config.setup()
 
 
 
-telegram.telegram_setup(telegram.telegram_callback)
+telegram_bot.telegram_setup()
 
 enter_closing_halted()
 
@@ -23,7 +23,7 @@ try:
             OPENING: leave_opening,
             CLOSING_HALTED: leave_closing_halted,
             CLOSING: leave_closing,
-            LOCKED: enter_opening_halted#config.noop
+            LOCKED: config.noop
                     
         }[config.state]()
         config.sleep(.1)
@@ -39,3 +39,4 @@ finally:
     config.pi.write(config.LED_CLOSED, 0)    
     config.blinkLED(config.LED_MOVING, False)
     config.pi.stop()
+    telegram_bot.updater.stop()
