@@ -3,6 +3,7 @@ from telegram.ext import CommandHandler
 import logging
 import states
 import config
+import secrets
 
 #globals().update(State.__members__)
 update = None
@@ -13,7 +14,7 @@ def telegram_callback(u, c):
     global update, context
     print("telegram callback")
     
-    if u.effective_chat.id == -582887216:
+    if u.effective_chat.id == secrets.CHAT_ID:
         if config.state==states.State.LOCKED:
             update = u
             context = c
@@ -41,7 +42,7 @@ def message(text, u=None, c=None):
 
 def telegram_setup():
     global updater
-    updater = Updater(token='1640089759:AAGMdfvyvwNjimoiCtjvD6ymoIL_kIhP2og', use_context=True)
+    updater = Updater(token=secrets.TELEGRAM_TOKEN, use_context=True)
 
     dispatcher = updater.dispatcher
 
