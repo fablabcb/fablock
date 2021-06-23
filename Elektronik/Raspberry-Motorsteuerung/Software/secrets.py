@@ -1,2 +1,3 @@
 TELEGRAM_TOKEN = "insert-token-here"
-CHAT_ID = "insert-chatID-here"
+CHAT_ID = -123456789
+           
