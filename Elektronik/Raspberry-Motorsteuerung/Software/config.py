@@ -1,7 +1,11 @@
 from time import sleep
+import pigpio # http://abyz.me.uk/rpi/pigpio/
+import logging
 
-# http://abyz.me.uk/rpi/pigpio/
-import pigpio
+# set debug level for all modules
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+# set debug level for states in states.py
+
 
 enter_time = 0.0
 state = 5

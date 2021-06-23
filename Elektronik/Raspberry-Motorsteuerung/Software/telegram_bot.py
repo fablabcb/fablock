@@ -12,17 +12,19 @@ updater = None
 
 def telegram_callback(u, c):
     global update, context
-    print("telegram callback")
+    logging.debug("telegram callback")
     
     if u.effective_chat.id == secrets.CHAT_ID:
         if config.state==states.State.LOCKED:
             update = u
             context = c
+            message("window open")
             states.enter_opening_halted()
         else:
-            message("lock is already busy")
+            message("lock is already busy", u, c)
 
     else:
+        logging.warning("not authorized: " + u.effective_chat.username)
         message("not authorized", u, c)
     
     
@@ -45,8 +47,6 @@ def telegram_setup():
     updater = Updater(token=secrets.TELEGRAM_TOKEN, use_context=True)
 
     dispatcher = updater.dispatcher
-
-    logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
 
     dispatcher.add_handler(CommandHandler('open', telegram_callback))

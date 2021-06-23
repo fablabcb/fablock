@@ -3,7 +3,8 @@
 * verify direction "opening" is right in config.setDirectionOpening
 * adjust timeouts
 * implement Sesame
-* define messages for non-debug modus (normal modus)
+* Schalter: Stecker neu krimpen
+* Feder zum randrücken des Fensters
 
 -------------------
 
