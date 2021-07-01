@@ -24,8 +24,8 @@ MOTOR_DUTY = 128 # 128 is 50% of 256 (50% off time)
 OPENING = 1 # TODO check if direction is mechanically opening
 CLOSING = 0 
 
-UNLOCKED_TIMEOUT = 10 # TODO längeren Timeout einstellen
-MOVING_HALTED_TIMEOUT = 10 # TODO
+UNLOCKED_TIMEOUT = 6 # TODO längeren Timeout einstellen
+MOVING_HALTED_TIMEOUT = 6 # TODO
 
 # LEDs
 LED_OPEN = 4
