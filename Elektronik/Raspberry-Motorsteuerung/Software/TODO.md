@@ -3,7 +3,6 @@
 * verify direction "opening" is right in config.setDirectionOpening
 * adjust timeouts
 * implement Sesame
-* Schalter: Stecker neu krimpen
 * Feder zum randrücken des Fensters
 
 -------------------
