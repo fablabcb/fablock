@@ -16,9 +16,11 @@ Install python packages:
 ```
 sudo apt install python3-pip
 pip3 install telegram
-pip3 install python-telegram-ext
-pip3 install python-telegram-bot
+pip3 install --force-reinstall -v "python-telegram-bot==13.11"
 ```
+
+NOTE: version 20.x of python-telegram-bot changed apis drastically, thats why we force the specific
+version. 
 
 Install and enable pigpio systemd daemon:
 
