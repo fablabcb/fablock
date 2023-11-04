@@ -16,7 +16,6 @@ class State(Enum):
     CLOSING_HALTED = 5
     CLOSING_HALTED_TIMEOUT = 6
     CLOSING = 7
-    
     # waiting for Telegram open command
     LOCKED = 8
 

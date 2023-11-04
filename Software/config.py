@@ -40,10 +40,10 @@ SW_MWC = 22 # window handle in locked position (stop motor if low, if switch is 
 
 def endstop_unlocked_reached():
     return pi.read(SW_MWO) == 0
-    
+
 def endstop_locked_reached():
     return pi.read(SW_MWC) == 0
-    
+
 # TODO determine whether key is retained in open or closed state
 SW_KEY = 17 # key switch
 
@@ -91,7 +91,7 @@ def setup():
 def enableMotor(state=True):
   pi.write(SLEEP, state)
   pi.write(ENABLE, not state)
-  pi.hardware_PWM(STEP, MOTOR_FREQ, MOTOR_DUTY if state else 0) 
+  pi.hardware_PWM(STEP, MOTOR_FREQ, MOTOR_DUTY if state else 0)
 
 def setDirection(direction):
     pi.write(DIR, direction)
@@ -102,6 +102,6 @@ def blinkLED(LED, on=True):
         pi.set_PWM_dutycycle(LED, 64)
     else:
         pi.set_PWM_dutycycle(LED, 0)
-        
+
 def noop():
     pass
