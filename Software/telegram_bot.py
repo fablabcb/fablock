@@ -1,51 +1,49 @@
-from telegram.ext import Updater
-from telegram.ext import CommandHandler
+from typing import Optional
+from telegram import Update
+from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
 import logging
+import asyncio
 import states
 import config
 import secrets
 
-#globals().update(State.__members__)
-update = None
-context = None
-updater = None
+application = None
 
-def telegram_callback(u, c):
-    global update, context
+async def open_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     logging.debug("telegram callback")
 
-    if u.effective_chat.id == secrets.CHAT_ID:
+    if update.effective_chat.id == secrets.CHAT_ID:
         if config.state==states.State.LOCKED:
-            update = u
-            context = c
-            message("window open")
+            await message_async("window opening", update, context)
             states.enter_opening_halted()
         else:
-            message("lock is already busy", u, c)
+            await message_async("lock is already busy", update, context)
 
     else:
-        logging.warning("not authorized: " + u.effective_chat.username)
-        message("not authorized", u, c)
+        logging.warning("not authorized: " + update.effective_chat.username)
+        await message_async("not authorized", update, context)
 
-def message(text, u=None, c=None):
-    # no u and c given: use the global ones
-    if u == None:
-        u = update
-    if c == None:
-        c = context
-
-    # if global update and context are also None: cant send messages
-    if u is None or c is None:
+# sends a message. if either update or context are missing, sends to
+# the configured channel by defaults
+async def message_async(text: str, update: Optional[Update] = None, context: Optional[ContextTypes.DEFAULT_TYPE] = None) -> None:
+    if application is None:
+        # application is not set up yet
+        logging.error("tried to send message before telegram set up")
         return
 
-    c.bot.send_message(chat_id=u.effective_chat.id, text=text)
+    if update is None or context is None:
+        # send this message in the configured channel
+        await application.bot.send_message(chat_id=secrets.CHAT_ID, text=text)
+    else:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=text)
 
-def telegram_setup():
-    global updater
-    updater = Updater(token=secrets.TELEGRAM_TOKEN, use_context=True)
+# convenience wrapper to run the (async) message function in a sync environment
+def message(text: str, u: Optional[Update] = None, c: Optional[ContextTypes.DEFAULT_TYPE] = None) -> None:
+    asyncio.get_event_loop().run_until_complete(message_async(text, u, c))
 
-    dispatcher = updater.dispatcher
+def telegram_setup() -> None:
+    global application
+    application = ApplicationBuilder().token(secrets.TELEGRAM_TOKEN).build()
+    application.add_handler(CommandHandler('open', open_callback))
 
-    dispatcher.add_handler(CommandHandler('open', telegram_callback))
-
-    updater.start_polling()
+    application.run_polling()
