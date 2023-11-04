@@ -30,4 +30,3 @@ finally:
     config.pi.write(config.LED_CLOSED, 0)
     config.blinkLED(config.LED_MOVING, False)
     config.pi.stop()
-    telegram_bot.updater.stop()

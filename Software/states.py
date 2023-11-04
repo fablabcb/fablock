@@ -1,7 +1,7 @@
 from enum import Enum
 import time
 import config
-import telegram_bot
+from telegram_send import message
 import logging
 
 logger = logging.getLogger(__name__)
@@ -73,7 +73,7 @@ def enter_opening_halted_timeout():
     logger.debug("entering opening_halted_timeout")
     msg = "Error: tried to open for more than " + str(config.MOVING_HALTED_TIMEOUT/60) + "minutes!"
     logger.warning(msg)
-    telegram_bot.message(msg)
+    message(msg)
     enter_opening_halted()
 
 def enter_closing_halted():
@@ -95,7 +95,7 @@ def enter_closing_halted_timeout():
     logger.debug("entering closing_halted_timeout")
     msg = "Error: tried to close for more than " + str(config.MOVING_HALTED_TIMEOUT/60) + "minutes!"
     logger.warning(msg)
-    telegram_bot.message(msg)
+    message(msg)
     enter_closing_halted()
 
 def enter_closing():
@@ -120,7 +120,5 @@ def enter_locked():
     config.blinkLED(config.LED_MOVING, False)
     config.pi.write(config.LED_OPEN, 0)
     config.pi.write(config.LED_CLOSED, 1)
-    telegram_bot.message("window locked")
-    telegram_bot.update = None
-    telegram_bot.context = None
+    message("window locked")
 
