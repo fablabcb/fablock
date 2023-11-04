@@ -9,6 +9,9 @@ import secrets
 
 application = None
 
+async def start_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    await message_async(str(update.effective_chat.id), update, context)
+
 async def open_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     logging.debug("telegram callback")
 
@@ -44,6 +47,7 @@ def message(text: str, u: Optional[Update] = None, c: Optional[ContextTypes.DEFA
 def telegram_setup() -> None:
     global application
     application = ApplicationBuilder().token(secrets.TELEGRAM_TOKEN).build()
+    application.add_handler(CommandHandler('start', start_callback))
     application.add_handler(CommandHandler('open', open_callback))
 
     application.run_polling()
