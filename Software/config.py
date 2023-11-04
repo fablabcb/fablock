@@ -102,6 +102,3 @@ def blinkLED(LED, on=True):
         pi.set_PWM_dutycycle(LED, 64)
     else:
         pi.set_PWM_dutycycle(LED, 0)
-
-def noop():
-    pass

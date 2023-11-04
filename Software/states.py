@@ -122,3 +122,6 @@ def enter_locked():
     config.pi.write(config.LED_CLOSED, 1)
     message("window locked")
 
+def leave_locked():
+    message("opening window")
+    enter_opening_halted()
