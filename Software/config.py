@@ -82,15 +82,15 @@ def setup():
 
 
 # enable Polulu driver (pass false, to disable)
-def enableMotor(state=True):
+def enable_motor(state=True):
   pi.write(SLEEP, state)
   pi.write(ENABLE, not state)
   pi.hardware_PWM(STEP, MOTOR_FREQ, MOTOR_DUTY if state else 0)
 
-def setDirection(direction):
+def set_direction(direction):
     pi.write(DIR, direction)
 
-def blinkLED(LED, on=True):
+def blink_LED(LED, on=True):
     if on:
         pi.set_PWM_frequency(LED, 0)
         pi.set_PWM_dutycycle(LED, 64)

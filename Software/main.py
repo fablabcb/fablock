@@ -34,8 +34,8 @@ try:
 except KeyboardInterrupt:
     print ("\nCtrl-C pressed.  Stopping PIGPIO and exiting...")
 finally:
-    config.enableMotor(False)
+    config.enable_motor(False)
     config.pi.write(config.LED_OPEN, 0)
     config.pi.write(config.LED_CLOSED, 0)
-    config.blinkLED(config.LED_MOVING, False)
+    config.blink_LED(config.LED_MOVING, False)
     config.pi.stop()
