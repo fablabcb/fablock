@@ -1,2 +1,4 @@
 *.gcode
 *.stl
+.Rproj.user
+Node-Red
