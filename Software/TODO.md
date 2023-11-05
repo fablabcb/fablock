@@ -9,9 +9,10 @@
 
 
 * `main.py`: main routine
-* `config.py`: setup 
-* `states.py`: state definition
-
+* `config.py`: setup and some hardware handling
+* `states.py`: state and state transition definitions
+* `telegram_commands.py`: receiving and handling incoming telegram commands
+* `telegram_send.py`: sending messages back to telegram
 
 
 * https://python-telegram-bot.org/
