@@ -9,7 +9,6 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 enter_time = 0.0
 state = 5
-debug = True
 
 ## Pin Numbering Scheme: BCM
 
@@ -21,11 +20,8 @@ ENABLE = 19 # 0 for enable
 MOTOR_FREQ = 600 # 500 pulses per second (<= 1000 Hz is good for our slim stepper motor)
 MOTOR_DUTY = 128 # 128 is 50% of 256 (50% off time)
 
-OPENING = 1 # TODO check if direction is mechanically opening
-CLOSING = 0 
-
-UNLOCKED_TIMEOUT = 6 # TODO längeren Timeout einstellen
-MOVING_HALTED_TIMEOUT = 6 # TODO
+UNLOCKED_TIMEOUT = 6 # TODO configure longer timeout
+MOVING_HALTED_TIMEOUT = 6 # TODO configure longer timeout
 
 # LEDs
 LED_OPEN = 4
@@ -49,8 +45,6 @@ SW_KEY = 17 # key switch
 
 # push type (high if pushed, normally open NO)
 SW_WIN = 26 # window open (stop motor if low, if switch is not pressed)
-SW_WIN_OPEN = 0
-SW_WIN_CLOSED = 1
 def window_open():
     return pi.read(SW_WIN) == 0
 
