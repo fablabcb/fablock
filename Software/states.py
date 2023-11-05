@@ -1,7 +1,7 @@
 from enum import Enum
 import time
 import config
-from telegram_send import message
+from telegram_send import message, set_typing
 import logging
 
 logger = logging.getLogger(__name__)
@@ -34,6 +34,7 @@ def enter_unlocked():
     config.blinkLED(config.LED_MOVING, False)
     config.pi.write(config.LED_CLOSED, 0)
     config.pi.write(config.LED_OPEN, 1)
+    message("window open", silent=True)
 
 def leave_unlocked():
     if time.perf_counter() > config.enter_time + config.UNLOCKED_TIMEOUT or config.window_open(): 
@@ -120,8 +121,8 @@ def enter_locked():
     config.blinkLED(config.LED_MOVING, False)
     config.pi.write(config.LED_OPEN, 0)
     config.pi.write(config.LED_CLOSED, 1)
-    message("window locked")
+    message("window locked", silent=True)
 
 def leave_locked():
-    message("opening window")
+    set_typing()
     enter_opening_halted()
