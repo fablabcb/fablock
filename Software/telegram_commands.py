@@ -1,4 +1,4 @@
-from telegram import Update
+from telegram import BotCommand, BotCommandScopeChat, Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
 import logging
 import asyncio
@@ -31,5 +31,14 @@ def listen(_open_event: threading.Event) -> None:
     application = ApplicationBuilder().token(secrets.TELEGRAM_TOKEN).build()
     application.add_handler(CommandHandler('start', start_callback))
     application.add_handler(CommandHandler('open', open_callback))
+
+    asyncio.get_event_loop().run_until_complete(application.bot.set_my_commands(
+        [
+            # /start is not documented because it is not intended to be used generally
+            #BotCommand('start', 'retrieve chat ID'),
+            BotCommand('open', 'open fablock'),
+        ],
+        BotCommandScopeChat(secrets.CHAT_ID)
+    ))
 
     application.run_polling()
