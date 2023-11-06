@@ -9,7 +9,6 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 enter_time = 0.0
 state = 5
-debug = True
 
 ## Pin Numbering Scheme: BCM
 
@@ -21,11 +20,8 @@ ENABLE = 19 # 0 for enable
 MOTOR_FREQ = 600 # 500 pulses per second (<= 1000 Hz is good for our slim stepper motor)
 MOTOR_DUTY = 128 # 128 is 50% of 256 (50% off time)
 
-OPENING = 1 # TODO check if direction is mechanically opening
-CLOSING = 0 
-
-UNLOCKED_TIMEOUT = 6 # TODO längeren Timeout einstellen
-MOVING_HALTED_TIMEOUT = 6 # TODO
+UNLOCKED_TIMEOUT = 6 # TODO configure longer timeout
+MOVING_HALTED_TIMEOUT = 6 # TODO configure longer timeout
 
 # LEDs
 LED_OPEN = 4
@@ -40,17 +36,15 @@ SW_MWC = 22 # window handle in locked position (stop motor if low, if switch is 
 
 def endstop_unlocked_reached():
     return pi.read(SW_MWO) == 0
-    
+
 def endstop_locked_reached():
     return pi.read(SW_MWC) == 0
-    
+
 # TODO determine whether key is retained in open or closed state
 SW_KEY = 17 # key switch
 
 # push type (high if pushed, normally open NO)
 SW_WIN = 26 # window open (stop motor if low, if switch is not pressed)
-SW_WIN_OPEN = 0
-SW_WIN_CLOSED = 1
 def window_open():
     return pi.read(SW_WIN) == 0
 
@@ -88,20 +82,17 @@ def setup():
 
 
 # enable Polulu driver (pass false, to disable)
-def enableMotor(state=True):
+def enable_motor(state=True):
   pi.write(SLEEP, state)
   pi.write(ENABLE, not state)
-  pi.hardware_PWM(STEP, MOTOR_FREQ, MOTOR_DUTY if state else 0) 
+  pi.hardware_PWM(STEP, MOTOR_FREQ, MOTOR_DUTY if state else 0)
 
-def setDirection(direction):
+def set_direction(direction):
     pi.write(DIR, direction)
 
-def blinkLED(LED, on=True):
+def blink_LED(LED, on=True):
     if on:
         pi.set_PWM_frequency(LED, 0)
         pi.set_PWM_dutycycle(LED, 64)
     else:
         pi.set_PWM_dutycycle(LED, 0)
-        
-def noop():
-    pass
