@@ -2,6 +2,7 @@ import config
 from states import *
 import telegram_commands
 import threading
+import time
 
 globals().update(State.__members__)
 
@@ -30,7 +31,7 @@ try:
                 # after blocking, transition to the next state
                 leave_locked()
         }[config.state]()
-        config.sleep(.1)
+        time.sleep(.1)
 except KeyboardInterrupt:
     print ("\nCtrl-C pressed.  Stopping PIGPIO and exiting...")
 finally:

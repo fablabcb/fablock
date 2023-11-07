@@ -1,4 +1,3 @@
-from time import sleep
 import pigpio # http://abyz.me.uk/rpi/pigpio/
 import logging
 
