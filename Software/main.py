@@ -6,16 +6,12 @@ import time
 
 globals().update(State.__members__)
 
-config.setup()
-
-# start telegram in a separate thread
 open_event = threading.Event()
-threading.Thread(target=telegram_commands.listen, args=(open_event,), daemon=True).start()
+def handle_lock():
+    # separate thread needs separate event loop for sending
+    # telegram messages
+    asyncio.set_event_loop(asyncio.new_event_loop())
 
-# enter initial state
-enter_closing_halted()
-
-try:
     while True:
         cases = {
             UNLOCKED: leave_unlocked,
@@ -32,6 +28,19 @@ try:
                 leave_locked()
         }[config.state]()
         time.sleep(.1)
+
+config.setup()
+
+# enter initial state
+enter_closing_halted()
+
+# start hardware handler in a separate thread
+threading.Thread(target=handle_lock, daemon=True).start()
+
+try:
+    # telegram must be handled in the main thread because of some I/O
+    # operations that the library does
+    telegram_commands.listen(open_event)
 except KeyboardInterrupt:
     print ("\nCtrl-C pressed.  Stopping PIGPIO and exiting...")
 finally:

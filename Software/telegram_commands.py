@@ -23,8 +23,6 @@ async def open_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 def listen(_open_event: threading.Event) -> None:
     global application, open_event
 
-    # separate thread needs to have a separate event loop set up
-    asyncio.set_event_loop(asyncio.new_event_loop())
     # keep track of the queue to send back stuff to the main thread
     open_event = _open_event
 
