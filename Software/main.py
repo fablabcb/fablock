@@ -6,7 +6,6 @@ import time
 
 globals().update(State.__members__)
 
-open_event = threading.Event()
 def handle_lock():
     # separate thread needs separate event loop for sending
     # telegram messages
@@ -19,13 +18,7 @@ def handle_lock():
             OPENING: leave_opening,
             CLOSING_HALTED: leave_closing_halted,
             CLOSING: leave_closing,
-            LOCKED: lambda:
-                # clear the event if it was set from a previous iteration
-                open_event.clear()
-                # block until an open event occurs again
-                open_event.wait()
-                # after blocking, transition to the next state
-                leave_locked()
+            LOCKED: lambda: time.sleep(1) # try to save some energy while locked
         }[config.state]()
         time.sleep(.1)
 
@@ -40,7 +33,7 @@ threading.Thread(target=handle_lock, daemon=True).start()
 try:
     # telegram must be handled in the main thread because of some I/O
     # operations that the library does
-    telegram_commands.listen(open_event)
+    telegram_commands.listen()
 except KeyboardInterrupt:
     print ("\nCtrl-C pressed.  Stopping PIGPIO and exiting...")
 finally:

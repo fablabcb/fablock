@@ -2,11 +2,10 @@ from telegram import BotCommand, BotCommandScopeChat, Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
 import logging
 import asyncio
-import threading
 import secrets
+import states
 
 application = None
-open_event = None
 
 async def start_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await context.bot.send_message(chat_id=update.effective_chat.id, text=str(update.effective_chat.id))
@@ -15,16 +14,13 @@ async def open_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     logging.debug("telegram callback")
 
     if update.effective_chat.id == secrets.CHAT_ID:
-        open_event.set()
+        states.leave_locked()
     else:
         logging.warning("not authorized: " + update.effective_chat.username)
         await context.bot.send_message(chat_id=update.effective_chat.id, text="not authorized")
 
-def listen(_open_event: threading.Event) -> None:
-    global application, open_event
-
-    # keep track of the queue to send back stuff to the main thread
-    open_event = _open_event
+def listen() -> None:
+    global application
 
     application = ApplicationBuilder().token(secrets.TELEGRAM_TOKEN).build()
     application.add_handler(CommandHandler('start', start_callback))
