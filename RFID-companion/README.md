@@ -41,8 +41,12 @@ this pin will stay unconnected.
 There is an additional LED indicating the state of the RFID reader, so you
 could label it something like "READY". The LED will go out while the reader is
 inactive, which will happen whenever the RFID reader reads anything. This LED
-is wired to a ground pin and **pyhsical pin 3 / BCM pin 2**. This LED is
-recommended but entirely optional.
+is wired to a ground pin (suggested physical pin 14) and pyhsical pin 18, i.e.
+BCM pin 24.
+
+This LED is recommended but entirely optional. It will be on whenever the reader
+is ready to read a card and will be off when the reader is currently disabled
+due to a timeout.
 
 ## Software setup
 For the SPI bus that was wired up above, you have to enable the SPI bus driver

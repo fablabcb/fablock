@@ -14,7 +14,7 @@ state = 5
 
 ## Pin Numbering Scheme: BCM
 
-LED_READY = 2
+LED_READY = 24
 
 # pins 8, 9, 10, 11 are used up by the hardware SPI bus
 # an additional pin is needed to send reset to the MFRC522 chip
