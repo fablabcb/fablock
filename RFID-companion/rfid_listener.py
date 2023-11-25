@@ -52,7 +52,6 @@ def handle_reader():
             config.set_ready(False)
         reader_attempts -= 1
         reader_timeout = time.monotonic() + 30 * 2 ** reader_attempts
-        print("reader_timeout", reader_timeout, time.monotonic())
         return
     else:
         reader.READER.AntennaOn()
@@ -96,6 +95,8 @@ def handle_commands(command_queue):
         command_revoke(id)
 
 def command_create(expires, comment):
+    global cards, reader
+
     message('present card to reader for creating', silent=True)
 
     timeout = time.monotonic() + 60 # now + 60s
@@ -128,6 +129,8 @@ def command_create(expires, comment):
         message('card not created: error writing', silent=True)
 
 def command_list():
+    global cards
+
     cards_list = cards.cards()
     text = f'{len(cards_list)} card(s)\n'
     for id, expired, expiry, comment in cards_list:
@@ -142,15 +145,18 @@ def command_list():
     message(text.strip(), silent=True)
 
 def command_expiry(id, expires):
+    global cards
     if cards.set_card_expiry(id, expires):
         expires_txt = 'never'
         if expires is not None:
             expires_txt = time.strftime('%Y-%m-%d %H:%M UTC', time.gmtime(expires))
+        comment = cards.get_card_comment(id)
         message(f'card expiry changed: {comment}\nnew expiry: {expires_txt}')
     else:
         message('unknown card', silent=True)
 
 def command_revoke(id):
+    global cards
     comment = cards.get_card_comment(id)
     if cards.revoke_card(id):
         message(f'revoked card: {comment}')

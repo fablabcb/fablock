@@ -90,12 +90,14 @@ class Cards:
         else:
             return card[0]
 
-    # Replace the expiry date for a given card.
+    # Replace the expiry date for a given card or remove it.
+    #
+    # `expires` should be either `None` or an integer representing the unix
+    # time of the expiry (UTC or GMT time zone).
     #
     # Returns True if the card was successfully extended to the given date.
     def set_card_expiry(self, id, expires):
-        rowcount = self.con.execute('UPDATE card SET expiry = ? WHERE id = ?;', [expiry, id]).rowcount
-        return rowcount == 1
+        return 1 == self.con.execute('UPDATE card SET expires = ? WHERE id = ?;', [expires, id]).rowcount
 
     # Get a list of all cards.
     #
@@ -112,10 +114,10 @@ class Cards:
             expired = False
 
             if row[1] is not None:
-                time_str = time.strftime('%Y-%m-%d %H:%M UTC', time.gmtime(row[1]))
+                expiry_str = time.strftime('%Y-%m-%d %H:%M UTC', time.gmtime(row[1]))
                 expired = row[1] <= time.time()
 
-            return (row[0], expired, time_str, row[2])
+            return (row[0], expired, expiry_str, row[2])
 
         return [map_cards(row) for row in cards]
 
@@ -136,7 +138,7 @@ class Cards:
 
             return (row[0], expired, row[2])
 
-        cards = [(row[0], row[1]) for row in cards if row[2] <= time.time()]
+        cards = [(row[0], row[1]) for row in cards if row[2] is not None and row[2] <= time.time()]
 
         for id, comment in cards:
             self.con.execute('UPDATE card SET expire_notif = 1 WHERE id = ?', [id])
