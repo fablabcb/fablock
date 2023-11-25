@@ -121,7 +121,7 @@ def command_create(expires, comment):
     if id == written_id:
         expires_txt = 'never'
         if expires is not None:
-            expires_txt = time.strftime('%Y-%m-%d %H:%M UTC', expires)
+            expires_txt = time.strftime('%Y-%m-%d %H:%M UTC', time.gmtime(expires))
         message(f'card created: {comment}\nexpires {expires_txt}')
     else:
         cards.revoke_card(id)
@@ -145,7 +145,7 @@ def command_expiry(id, expires):
     if cards.set_card_expiry(id, expires):
         expires_txt = 'never'
         if expires is not None:
-            expires_txt = time.strftime('%Y-%m-%d %H:%M UTC')
+            expires_txt = time.strftime('%Y-%m-%d %H:%M UTC', time.gmtime(expires))
         message(f'card expiry changed: {comment}\nnew expiry: {expires_txt}')
     else:
         message('unknown card', silent=True)
