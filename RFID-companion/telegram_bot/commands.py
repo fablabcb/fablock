@@ -54,6 +54,30 @@ async def cards_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
     rfid_command_queue.put('list')
 
+async def expiry_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if not await update_authorized(update, context):
+        return
+    if len(context.args) < 2:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="usage: /expiry <id> <YYYY-MM-DD>")
+        return
+
+    # parse the card ID, it must be an integer
+    id = None
+    try:
+        id = int(context.args[0], 10)
+    except ValueError:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="invalid id, must be an integer")
+        return
+
+    expiry = parse_expiry(context.args[1])
+    if expiry == -1:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="invalid date format, use YYYY-MM-DD")
+        return
+
+    rfid_command_queue.put('expiry')
+    rfid_command_queue.put(id)
+    rfid_command_queue.put(expiry)
+
 def listen(_rfid_command_queue: queue.SimpleQueue) -> None:
     global application, rfid_command_queue
 
@@ -63,6 +87,7 @@ def listen(_rfid_command_queue: queue.SimpleQueue) -> None:
     application = ApplicationBuilder().token(config.TELEGRAM_TOKEN).build()
     application.add_handler(CommandHandler('start', start_callback))
     application.add_handler(CommandHandler('create_card', create_card_callback))
+    application.add_handler(CommandHandler('expiry', cards_callback))
     application.add_handler(CommandHandler('manage_cards', cards_callback))
 
     asyncio.get_event_loop().run_until_complete(application.bot.set_my_commands(
@@ -70,6 +95,7 @@ def listen(_rfid_command_queue: queue.SimpleQueue) -> None:
             # /start is not documented because it is not intended to be used generally
             #BotCommand('start', 'retrieve chat ID'),
             BotCommand('create_card', 'create/write new RFID card'),
+            BotCommand('expiry', 'set or remove expiry date of RFID card'),
             BotCommand('manage_cards', 'manage RFID cards')
         ],
         BotCommandScopeChat(config.CHAT_ID)
