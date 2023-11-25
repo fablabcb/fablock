@@ -10,6 +10,17 @@ import queue
 application = None
 rfid_command_queue = None
 
+# Returns `-1` on error or `None` if it should never expire.
+# Otherwise, returns an integer representing the unix time.
+def parse_expiry(text):
+    if text == "never":
+        return None
+    else:
+        try:
+            return time.mktime(time.strptime(text, '%Y-%m-%d'))
+        except ValueError:
+            return -1
+
 async def update_authorized(update: Update, context: ContextTypes.DEFAULT_TYPE) -> bool:
     if update.effective_chat.id != config.CHAT_ID:
         logging.warn("not authorized: " + update.effective_chat.username)
@@ -28,11 +39,8 @@ async def create_card_callback(update: Update, context: ContextTypes.DEFAULT_TYP
         await context.bot.send_message(chat_id=update.effective_chat.id, text="usage: /create_card <YYYY-MM-DD> <name>")
         return
 
-    expiry = None
-    try:
-        expiry = time.mktime(time.strptime(context.args[0], '%Y-%m-%d'))
-    except ValueError:
-        print(a)
+    expiry = parse_expiry(context.args[0])
+    if expiry == -1:
         await context.bot.send_message(chat_id=update.effective_chat.id, text="invalid date format, use YYYY-MM-DD")
         return
 
