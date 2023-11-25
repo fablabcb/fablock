@@ -352,6 +352,7 @@ class MFRC522:
         status, backData, bits = self.MFRC522_ToCard(self.PCD_TRANSCEIVE, buf)
         if status != self.MI_OK:
             self.logger.error("Error while reading!")
+            return None
 
         if bits != 16 * 8:
             return None
