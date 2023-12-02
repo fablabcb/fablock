@@ -78,6 +78,24 @@ async def expiry_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     rfid_command_queue.put(id)
     rfid_command_queue.put(expiry)
 
+async def revoke_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if not await update_authorized(update, context):
+        return
+    if len(context.args) < 1:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="usage: /rfid_revoke <id>")
+        return
+
+    # parse the card ID, it must be an integer
+    id = None
+    try:
+        id = int(context.args[0], 10)
+    except ValueError:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="invalid id, must be an integer")
+        return
+
+    rfid_command_queue.put('revoke')
+    rfid_command_queue.put(id)
+
 def listen(_rfid_command_queue: queue.SimpleQueue) -> None:
     global application, rfid_command_queue
 
@@ -89,6 +107,7 @@ def listen(_rfid_command_queue: queue.SimpleQueue) -> None:
     application.add_handler(CommandHandler('rfid_cards', cards_callback))
     application.add_handler(CommandHandler('rfid_create', create_card_callback))
     application.add_handler(CommandHandler('rfid_expiry', expiry_callback))
+    application.add_handler(CommandHandler('rfid_revoke', revoke_callback))
 
     asyncio.get_event_loop().run_until_complete(application.bot.set_my_commands(
         [
@@ -96,7 +115,8 @@ def listen(_rfid_command_queue: queue.SimpleQueue) -> None:
             #BotCommand('start', 'retrieve chat ID'),
             BotCommand('rfid_cards', 'list RFID cards'),
             BotCommand('rfid_create', 'create/write new RFID card'),
-            BotCommand('rfid_expiry', 'set or remove expiry date of RFID card')
+            BotCommand('rfid_expiry', 'set or remove expiry date of RFID card'),
+            BotCommand('rfid_revoke', 'revoke and delete an existing RFID card')
         ],
         BotCommandScopeChat(config.CHAT_ID)
     ))
