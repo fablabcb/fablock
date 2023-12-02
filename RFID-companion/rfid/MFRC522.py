@@ -330,6 +330,7 @@ class MFRC522:
         # Check if an error occurred
         if status != self.MI_OK:
             self.logger.error("AUTH ERROR!!")
+            return status
         # check if MFCrypto1On bit is set
         if (self.Read_MFRC522(self.Status2Reg) & 0x08) == 0:
             self.logger.error("failed to activate MIFARE Crypto1 unit")

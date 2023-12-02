@@ -98,7 +98,8 @@ class SimpleMFRC522:
                     unlocked_sector = sector
                 else:
                     logging.error(f"failed to unlock sector {sector}")
-                    break
+                    self.READER.MFRC522_StopCrypto1()
+                    return None, None
             read_block = self.READER.MFRC522_Read(block)
             if read_block:
                 data.extend(read_block)
@@ -156,7 +157,8 @@ class SimpleMFRC522:
                     unlocked_sector = sector
                 else:
                     logging.error(f"failed to unlock sector {sector}")
-                    break
+                    self.READER.MFRC522_StopCrypto1()
+                    return None, None
             self.READER.MFRC522_Write(block, data[i * 16:(i + 1) * 16])
 
             read_block = self.READER.MFRC522_Read(block)
