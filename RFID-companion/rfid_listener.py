@@ -11,7 +11,7 @@ from telegram_bot.send import message
 cards = None
 reader = None
 
-
+reader_disabled = False
 # set by code whenever an invalid read is made
 reader_attempts = 0
 # set "automatically" by the reader handler
@@ -48,6 +48,8 @@ def handle_reader():
 
     # first check whether we should not enable the reader
     # otherwise don't do anything else
+    if reader_disabled:
+        return
     if not reader_timeout is None:
         if reader_timeout > time.monotonic():
             # timeout has not passed yet
@@ -106,6 +108,8 @@ def handle_commands(command_queue):
     elif command == 'revoke':
         id = command_queue.get()
         command_revoke(id)
+    elif command == 'toggle':
+        command_toggle()
 
 def command_create(expires, comment):
     global cards, reader
@@ -175,3 +179,19 @@ def command_revoke(id):
         message(f'revoked card: {comment}')
     else:
         message('unknown card', silent=True)
+
+def command_toggle():
+    global reader_disableds
+    reader_disabled = not reader_disabled
+
+    if reader_disabled:
+        reader.READER.AntennaOff()
+        config.set_ready(False)
+        message('reader disabled')
+    else:
+        reader.READER.AntennaOn()
+        config.set_ready(True)
+        reader_attempts = 0
+        reader_timeout = None
+        attempts_timeout = None
+        message('reader enabled and timeouts reset')
