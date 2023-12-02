@@ -66,6 +66,9 @@ def handle_reader():
 
         if res == cards.E_OK:
             message("read card: " + comment)
+            # the open command is sent immediately because the opening
+            # process takes some time so it will allow enough time for the
+            # person to walk over to the other window
             message("/open", silent=True)
         elif res == cards.E_UNKNOWN or res == cards.E_INVALID:
             message("read invalid card")
