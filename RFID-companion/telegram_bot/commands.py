@@ -36,7 +36,7 @@ async def create_card_callback(update: Update, context: ContextTypes.DEFAULT_TYP
     if not await update_authorized(update, context):
         return
     if len(context.args) < 2:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="usage: /create_card <YYYY-MM-DD> <name>")
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="usage: /rfid_create <YYYY-MM-DD> <name>")
         return
 
     expiry = parse_expiry(context.args[0])
@@ -58,7 +58,7 @@ async def expiry_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     if not await update_authorized(update, context):
         return
     if len(context.args) < 2:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="usage: /expiry <id> <YYYY-MM-DD>")
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="usage: /rfid_expiry <id> <YYYY-MM-DD>")
         return
 
     # parse the card ID, it must be an integer
@@ -86,17 +86,17 @@ def listen(_rfid_command_queue: queue.SimpleQueue) -> None:
 
     application = ApplicationBuilder().token(config.TELEGRAM_TOKEN).build()
     application.add_handler(CommandHandler('start', start_callback))
-    application.add_handler(CommandHandler('create_card', create_card_callback))
-    application.add_handler(CommandHandler('expiry', cards_callback))
-    application.add_handler(CommandHandler('manage_cards', cards_callback))
+    application.add_handler(CommandHandler('rfid_cards', cards_callback))
+    application.add_handler(CommandHandler('rfid_create', create_card_callback))
+    application.add_handler(CommandHandler('rfid_expiry', expiry_callback))
 
     asyncio.get_event_loop().run_until_complete(application.bot.set_my_commands(
         [
             # /start is not documented because it is not intended to be used generally
             #BotCommand('start', 'retrieve chat ID'),
-            BotCommand('create_card', 'create/write new RFID card'),
-            BotCommand('expiry', 'set or remove expiry date of RFID card'),
-            BotCommand('manage_cards', 'manage RFID cards')
+            BotCommand('rfid_cards', 'list RFID cards'),
+            BotCommand('rfid_create', 'create/write new RFID card'),
+            BotCommand('rfid_expiry', 'set or remove expiry date of RFID card')
         ],
         BotCommandScopeChat(config.CHAT_ID)
     ))
