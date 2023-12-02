@@ -11,10 +11,13 @@ from telegram_bot.send import message
 cards = None
 reader = None
 
+
 # set by code whenever an invalid read is made
 reader_attempts = 0
 # set "automatically" by the reader handler
 reader_timeout = None
+# time at which `reader_attempts` should be reset to zero
+attempts_timeout = None
 
 def listen(command_queue):
     global cards, reader
@@ -41,22 +44,25 @@ def listen(command_queue):
         time.sleep(.1)
 
 def handle_reader():
-    global reader_timeout, reader_attempts
+    global attempts_timeout, reader_timeout, reader_attempts
 
-    if reader_timeout is not None and reader_timeout > time.monotonic():
-        # timeout has not passed yet
-        return
-    elif reader_attempts > 0:
-        if reader_timeout is None:
-            reader.READER.AntennaOff()
-            config.set_ready(False)
-        reader_attempts -= 1
-        reader_timeout = time.monotonic() + 30 * 2 ** reader_attempts
-        return
-    else:
-        reader.READER.AntennaOn()
-        config.set_ready(True)
-        reader_timeout = None
+    # first check whether we should not enable the reader
+    # otherwise don't do anything else
+    if not reader_timeout is None:
+        if reader_timeout > time.monotonic():
+            # timeout has not passed yet
+            return
+        else:
+            # timeout has ended
+            reader.READER.AntennaOn()
+            config.set_ready(True)
+            reader_timeout = None
+            attempts_timeout = time.monotonic() + 15 * 2 ** reader_attempts
+
+    if not attempts_timeout is None and attempts_timeout <= time.monotonic():
+        # attempts reset timeout has ended
+        reader_attempts = 0
+        attempts_timeout = None
 
     # try reading a card
     uid, data = reader.read_no_block()
@@ -70,12 +76,16 @@ def handle_reader():
             # process takes some time so it will allow enough time for the
             # person to walk over to the other window
             message("/open", silent=True)
+            reader_attempts = 0
         elif res == cards.E_UNKNOWN or res == cards.E_INVALID:
             message("read invalid card")
         elif res == cards.E_EXPIRED:
             message("read expired card " + comment)
 
         reader_attempts += 1
+        reader_timeout = time.monotonic() + 15 * 2 ** reader_attempts
+        reader.READER.AntennaOff()
+        config.set_ready(False)
 
 def handle_commands(command_queue):
     command = None
