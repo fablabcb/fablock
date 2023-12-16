@@ -44,7 +44,7 @@ def listen(command_queue):
         time.sleep(.1)
 
 def handle_reader():
-    global attempts_timeout, reader_timeout, reader_attempts
+    global attempts_timeout, reader_attempts, reader_disabled, reader_timeout
 
     # first check whether we should not enable the reader
     # otherwise don't do anything else
@@ -181,7 +181,8 @@ def command_revoke(id):
         message('unknown card', silent=True)
 
 def command_toggle():
-    global reader_disableds
+    global reader_disabled
+
     reader_disabled = not reader_disabled
 
     if reader_disabled:
