@@ -52,19 +52,25 @@ due to a timeout.
 For the SPI bus that was wired up above, you have to enable the SPI bus driver
 with `raspi-config`.
 
-Please also make sure these python packages are installed:
-- `python-telegram-bot`
-- `spidev`
-- `pigpio`
-
-E.g. on Raspbian:
-```sh
-sudo apt install python3-python-telegram-bot python3-spidev python3-pigpio
-```
-
 For PiGpio to work you may also have to install a system package, e.g. on Raspbian:
 ```sh
 sudo apt install pigpio
 sudo systemctl enable pigpiod.service
 sudo systemctl start pigpiod.service
 ```
+
+On newer python versions, you will use a venv. You can create one in a new diretory `venv` (last parameter) with:
+```sh
+python -m venv venv
+```
+Please make sure these python packages are installed in the venv:
+- `python-telegram-bot`
+- `spidev`
+- `pigpio`
+
+E.g. on Raspbian:
+```sh
+venv/bin/pip install python-telegram-bot spidev pigpio
+```
+
+You can use the provided `fablock-rfid.service` systemd service file to run the RFID companion.

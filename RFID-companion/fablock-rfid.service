@@ -1,0 +1,14 @@
+[Unit]
+Description=fablock_rfid
+Requires=pigpiod.service network.target
+After=pigpiod.service
+
+[Service]
+Type=simple
+WorkingDirectory=/home/pi/venv/
+ExecStart=/home/pi/venv/bin/python fablock/RFID-companion/main.py
+User=pi
+Group=pi
+
+[Install]
+WantedBy=multi-user.target
