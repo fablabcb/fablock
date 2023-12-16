@@ -1,4 +1,4 @@
-from telegram import BotCommand, BotCommandScopeChat, Update
+from telegram import BotCommand, BotCommandScopeChatAdministrators, Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
 import logging
 import asyncio
@@ -26,8 +26,13 @@ async def update_authorized(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         logging.warn("not authorized: " + update.effective_chat.username)
         await context.bot.send_message(chat_id=update.effective_chat.id, text="not authorized")
         return False
-    else:
-        return True
+
+    admins = await update.effective_chat.get_administrators()
+    if not update.effective_user.id in [admin.user.id for admin in admins]:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="not authorized, admins only")
+        return False
+
+    return True
 
 async def start_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await context.bot.send_message(chat_id=update.effective_chat.id, text=str(update.effective_chat.id))
@@ -126,7 +131,7 @@ def listen(_rfid_command_queue: queue.SimpleQueue) -> None:
             BotCommand('rfid_revoke', 'revoke and delete an existing RFID card'),
             BotCommand('rfid_toggle', 'enable/disable RFID reader')
         ],
-        BotCommandScopeChat(config.CHAT_ID)
+        BotCommandScopeChatAdministrators(config.CHAT_ID)
     ))
 
     application.run_polling()

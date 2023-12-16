@@ -140,7 +140,7 @@ def command_create(expires, comment):
         expires_txt = 'never'
         if expires is not None:
             expires_txt = time.strftime('%Y-%m-%d %H:%M UTC', time.gmtime(expires))
-        message(f'card created: {comment}\nexpires {expires_txt}')
+        message(f'card {id} created: {comment}\nexpires {expires_txt}')
     else:
         cards.revoke_card(id)
         message('card not created: error writing', silent=True)
