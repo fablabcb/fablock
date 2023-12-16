@@ -2,3 +2,5 @@
 *.stl
 .Rproj.user
 Node-Red
+__pycache__
+*.pyc
