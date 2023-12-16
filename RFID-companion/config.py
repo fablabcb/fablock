@@ -27,6 +27,8 @@ def setup():
     # Set up pins
     pi.set_mode(RFID_RST, pigpio.OUTPUT)
     pi.set_mode(LED_READY, pigpio.OUTPUT)
+    # set PWM frequency to lowest possible
+    pi.set_PWM_frequency(LED_READY, 0)
 
     enable_rfid()
     set_ready()
@@ -36,3 +38,6 @@ def enable_rfid(on=True):
 
 def set_ready(on=True):
     pi.write(LED_READY, on)
+
+def blink_ready():
+    pi.set_PWM_dutycycle(LED_READY, 64)

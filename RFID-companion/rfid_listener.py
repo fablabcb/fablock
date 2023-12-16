@@ -79,15 +79,17 @@ def handle_reader():
             # person to walk over to the other window
             message("/open", silent=True)
             reader_attempts = 0
+            config.blink_ready()
         elif res == cards.E_UNKNOWN or res == cards.E_INVALID:
             message("read invalid card")
+            config.set_ready(False)
         elif res == cards.E_EXPIRED:
             message("read expired card " + comment)
+            config.set_ready(False)
 
         reader_attempts += 1
         reader_timeout = time.monotonic() + 15 * 2 ** reader_attempts
         reader.READER.AntennaOff()
-        config.set_ready(False)
 
 def handle_commands(command_queue):
     command = None
