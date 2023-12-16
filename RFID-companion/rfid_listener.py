@@ -12,9 +12,8 @@ cards = None
 reader = None
 
 reader_disabled = False
-# set by code whenever an invalid read is made
+# these variables should only be set to something other than 0/None by increment_timeout
 reader_attempts = 0
-# set "automatically" by the reader handler
 reader_timeout = None
 # time at which `reader_attempts` should be reset to zero
 attempts_timeout = None
@@ -42,6 +41,13 @@ def listen(command_queue):
             message(text, silent=True)
 
         time.sleep(.1)
+
+def increment_timeout():
+    global reader, reader_attempts, reader_timeout
+
+    reader_attempts += 1
+    reader_timeout = time.monotonic() + 15 * 2 ** reader_attempts
+    reader.READER.AntennaOff()
 
 def handle_reader():
     global attempts_timeout, reader_attempts, reader_disabled, reader_timeout
@@ -87,9 +93,7 @@ def handle_reader():
             message("read expired card " + comment)
             config.set_ready(False)
 
-        reader_attempts += 1
-        reader_timeout = time.monotonic() + 15 * 2 ** reader_attempts
-        reader.READER.AntennaOff()
+        increment_timeout()
 
 def handle_commands(command_queue):
     command = None
@@ -101,7 +105,11 @@ def handle_commands(command_queue):
 
     if command == 'create':
         expires, comment = command_queue.get(), command_queue.get()
+        config.blink_ready()
         command_create(expires, comment)
+        # after (trying) creating a card, disable the reader
+        increment_timeout()
+        config.set_ready(False)
     elif command == 'list':
         command_list()
     elif command == 'expiry':
