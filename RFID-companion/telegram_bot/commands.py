@@ -10,6 +10,8 @@ import queue
 application = None
 rfid_command_queue = None
 
+logger = logging.getLogger("telegram_bot")
+
 # Returns `-1` on error or `None` if it should never expire.
 # Otherwise, returns an integer representing the unix time.
 def parse_expiry(text):
@@ -23,7 +25,7 @@ def parse_expiry(text):
 
 async def update_authorized(update: Update, context: ContextTypes.DEFAULT_TYPE) -> bool:
     if update.effective_chat.id != config.CHAT_ID:
-        logging.warn("not authorized: " + update.effective_chat.username)
+        logger.warn("not authorized: " + update.effective_chat.username)
         await context.bot.send_message(chat_id=update.effective_chat.id, text="not authorized")
         return False
 
@@ -110,6 +112,7 @@ async def toggle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 def listen(_rfid_command_queue: queue.SimpleQueue) -> None:
     global application, rfid_command_queue
 
+    logger.info("setting up")
     # keep track of the queue to send back stuff to the main thread
     rfid_command_queue = _rfid_command_queue
 
@@ -134,4 +137,5 @@ def listen(_rfid_command_queue: queue.SimpleQueue) -> None:
         BotCommandScopeChatAdministrators(config.CHAT_ID)
     ))
 
+    logger.info("starting polling")
     application.run_polling()
