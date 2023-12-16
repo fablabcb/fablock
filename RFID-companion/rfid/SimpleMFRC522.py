@@ -107,6 +107,8 @@ class SimpleMFRC522:
                 break
 
         self.READER.MFRC522_StopCrypto1()
+        if len(data) < len(blocks):
+            return None, None
         return uid, data
 
     # write the given data to the given blocks
