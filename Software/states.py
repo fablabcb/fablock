@@ -124,5 +124,7 @@ def enter_locked():
     message("window locked", silent=True)
 
 def leave_locked():
+    if config.state != LOCKED:
+        raise ValueError("not in locked state")
     set_typing()
     enter_opening_halted()

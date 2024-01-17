@@ -14,7 +14,10 @@ async def open_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     logging.debug("telegram callback")
 
     if update.effective_chat.id == secrets.CHAT_ID:
-        states.leave_locked()
+        try:
+            states.leave_locked()
+        except ValueError:
+            await context.bot.send_message(chat_id=update.effective_chat.id, text="already busy")
     else:
         logging.warning("not authorized: " + update.effective_chat.username)
         await context.bot.send_message(chat_id=update.effective_chat.id, text="not authorized")
