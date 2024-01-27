@@ -34,7 +34,7 @@ def connect():
         return True
 
     try:
-        con = socket.create_connection((config.HOST, config.PORT), timeout = 10)
+        con = socket.create_connection((config.TCP_HOST, config.TCP_PORT), timeout = 10)
     except socket.timeout:
         con = None
         return False

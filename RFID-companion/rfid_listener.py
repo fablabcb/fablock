@@ -84,7 +84,7 @@ def handle_reader():
         if res == cards.E_OK:
             message("read card: " + comment)
             reader_attempts = 0
-            if tcp_client.open():
+            if tcp_client.request_open():
                 config.set_ready(True)
                 config.blink_ready()
         elif res == cards.E_UNKNOWN or res == cards.E_INVALID:
