@@ -3,6 +3,7 @@ from states import *
 import telegram_commands
 import threading
 import time
+import tcp_server
 
 globals().update(State.__members__)
 
@@ -29,6 +30,8 @@ enter_closing_halted()
 
 # start hardware handler in a separate thread
 threading.Thread(target=handle_lock, daemon=True).start()
+# start TCP handler in a separate thread
+threading.Thread(target=tcp_server.run, daemon=True).start()
 
 try:
     # telegram must be handled in the main thread because of some I/O
