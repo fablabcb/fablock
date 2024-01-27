@@ -9,8 +9,6 @@ logging.getLogger('telegram.ext').setLevel(logging.WARNING)
 
 SQLITE_CARDS_PATH = "cards.db"
 
-enter_time = 0.0
-state = 5
 
 ## Pin Numbering Scheme: BCM
 
