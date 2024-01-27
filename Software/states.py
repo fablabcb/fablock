@@ -1,7 +1,7 @@
 from enum import Enum
 import time
 import config
-from telegram_send import message, set_typing
+from telegram_send import message
 import logging
 
 logger = logging.getLogger(__name__)
@@ -126,5 +126,4 @@ def enter_locked():
 def leave_locked():
     if config.state != LOCKED:
         raise ValueError("not in locked state")
-    set_typing()
     enter_opening_halted()

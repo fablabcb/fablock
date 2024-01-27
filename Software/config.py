@@ -5,6 +5,8 @@ import logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 # set debug level for states in states.py
 
+OPENING = 0
+CLOSING = 1
 
 enter_time = 0.0
 state = 5

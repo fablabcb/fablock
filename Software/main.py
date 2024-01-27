@@ -4,6 +4,7 @@ import telegram_commands
 import threading
 import time
 import tcp_server
+import asyncio
 
 globals().update(State.__members__)
 

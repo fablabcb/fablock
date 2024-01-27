@@ -12,6 +12,3 @@ def __await(fut):
 # does not have to deal with async
 def message(text, silent=None):
     __await(bot.send_message(chat_id=secrets.CHAT_ID, text=text, disable_notification=silent, parse_mode=ParseMode.MARKDOWN_V2))
-
-def set_typing():
-    __await(bot.send_chat_action(chat_id=secrets.CHAT_ID, action='typing'))
