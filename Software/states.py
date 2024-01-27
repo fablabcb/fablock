@@ -34,7 +34,7 @@ def enter_unlocked():
     config.blink_LED(config.LED_MOVING, False)
     config.pi.write(config.LED_CLOSED, 0)
     config.pi.write(config.LED_OPEN, 1)
-    message("window open", silent=True)
+    message("\U0001F7E2 window open", silent=True)
 
 def leave_unlocked():
     if time.perf_counter() > config.enter_time + config.UNLOCKED_TIMEOUT or config.window_open(): 
@@ -72,7 +72,7 @@ def leave_opening_halted():
 
 def enter_opening_halted_timeout():
     logger.debug("entering opening_halted_timeout")
-    msg = "Error: tried to open for more than " + str(config.MOVING_HALTED_TIMEOUT/60) + "minutes!"
+    msg = "\U0001F479 Error: tried to open for more than " + str(config.MOVING_HALTED_TIMEOUT/60) + "minutes!"
     logger.warning(msg)
     message(msg)
     enter_opening_halted()
@@ -94,7 +94,7 @@ def leave_closing_halted():
 
 def enter_closing_halted_timeout():
     logger.debug("entering closing_halted_timeout")
-    msg = "Error: tried to close for more than " + str(config.MOVING_HALTED_TIMEOUT/60) + "minutes!"
+    msg = "\U0001F479 Error: tried to close for more than " + str(config.MOVING_HALTED_TIMEOUT/60) + "minutes!"
     logger.warning(msg)
     message(msg)
     enter_closing_halted()
@@ -121,7 +121,7 @@ def enter_locked():
     config.blink_LED(config.LED_MOVING, False)
     config.pi.write(config.LED_OPEN, 0)
     config.pi.write(config.LED_CLOSED, 1)
-    message("window locked", silent=True)
+    message("\U0001F512 window locked", silent=True)
 
 def leave_locked():
     if config.state != LOCKED:
