@@ -2,6 +2,7 @@
 Description=fablock_bot
 Requires=pigpiod.service network.target
 After=pigpiod.service
+StartLimitIntervalSec=0
 
 [Service]
 Type=simple
@@ -9,6 +10,8 @@ WorkingDirectory=/home/pi/fablock/Elektronik/Raspberry-Motorsteuerung/Software/
 ExecStart=/usr/bin/python3 main.py
 User=pi
 Group=pi
+Restart=always
+RestartSec=5
 
 [Install]
 WantedBy=multi-user.target

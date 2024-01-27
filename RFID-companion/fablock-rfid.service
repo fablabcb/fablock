@@ -2,6 +2,7 @@
 Description=fablock_rfid
 Requires=pigpiod.service network.target
 After=pigpiod.service
+StartLimitIntervalSec=0
 
 [Service]
 Type=simple
@@ -9,6 +10,8 @@ WorkingDirectory=/home/pi/venv/
 ExecStart=/home/pi/venv/bin/python fablock/RFID-companion/main.py
 User=pi
 Group=pi
+Restart=always
+RestartSec=5
 
 [Install]
 WantedBy=multi-user.target
