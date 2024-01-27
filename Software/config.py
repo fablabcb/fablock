@@ -16,11 +16,11 @@ DIR = 5 # Direction GPIO Pin
 STEP = 12 # Step GPIO Pin
 SLEEP = 13 # 0 for sleep
 ENABLE = 19 # 0 for enable
-MOTOR_FREQ = 600 # 500 pulses per second (<= 1000 Hz is good for our slim stepper motor)
+MOTOR_FREQ = 500 # 500 pulses per second (<= 1000 Hz is good for our slim stepper motor)
 MOTOR_DUTY = 128 # 128 is 50% of 256 (50% off time)
 
-UNLOCKED_TIMEOUT = 6 # TODO configure longer timeout
-MOVING_HALTED_TIMEOUT = 6 # TODO configure longer timeout
+UNLOCKED_TIMEOUT = 12
+MOVING_HALTED_TIMEOUT = 12
 
 # LEDs
 LED_OPEN = 4
