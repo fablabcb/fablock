@@ -6,7 +6,7 @@ StartLimitIntervalSec=0
 
 [Service]
 Type=simple
-WorkingDirectory=/home/pi/fablock/Elektronik/Raspberry-Motorsteuerung/Software/
+WorkingDirectory=/home/pi/fablock/Software/
 ExecStart=/usr/bin/python3 main.py
 User=pi
 Group=pi
