@@ -7,6 +7,7 @@ import config
 import rfid.cards_sqlite
 from rfid.SimpleMFRC522 import SimpleMFRC522
 from telegram_bot.send import message
+import tcp_client
 
 cards = None
 reader = None
@@ -78,20 +79,18 @@ def handle_reader():
         id = reader.uid_to_num(uid)
         res, comment = cards.check_card(id, data)
 
+        config.set_ready(False)
+
         if res == cards.E_OK:
             message("read card: " + comment)
-            # the open command is sent immediately because the opening
-            # process takes some time so it will allow enough time for the
-            # person to walk over to the other window
-            message("/open", silent=True)
             reader_attempts = 0
-            config.blink_ready()
+            if tcp_client.open():
+                config.set_ready(True)
+                config.blink_ready()
         elif res == cards.E_UNKNOWN or res == cards.E_INVALID:
             message("read invalid card")
-            config.set_ready(False)
         elif res == cards.E_EXPIRED:
             message("read expired card " + comment)
-            config.set_ready(False)
 
         increment_timeout()
 

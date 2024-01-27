@@ -9,6 +9,8 @@ logging.getLogger('telegram.ext').setLevel(logging.WARNING)
 
 SQLITE_CARDS_PATH = "cards.db"
 
+TCP_HOST = "192.168.1.137"
+TCP_PORT = 55555
 
 ## Pin Numbering Scheme: BCM
 

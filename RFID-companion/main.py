@@ -5,8 +5,10 @@ import threading
 import queue
 import time
 import asyncio
+import tcp_client
 
 config.setup()
+tcp_client.connect()
 
 rfid_command_queue = queue.SimpleQueue()
 
