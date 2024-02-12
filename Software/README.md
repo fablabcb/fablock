@@ -23,29 +23,30 @@ cd /home/pi
 git clone --branch all-in-one-system  https://github.com/fablabcb/fablock.git 
 ```
 
-Install python packages:
+Install python packages. In recent versions, python requires the use of venv's.
 
 ```
-sudo apt install python3-pip
-pip3 install telegram
-pip3 install python-telegram-bot
+python -m venv venv # creates a venv in the directory 'venv'
+venv/bin/pip3 install telegram python-telegram-bot pygpio
 ```
 
 Install and enable pigpio systemd daemon:
 
 ```
-sudo apt install pigpio python3-pigpio
+sudo apt install pigpio
 sudo systemctl enable pigpiod.service
 ```
 
 Install fablock systemd file:
 
 ```
-sudo ln -s /home/pi/fablock/Elektronik/Raspberry-Motorsteuerung/Software/fablock.service /etc/systemd/system/fablock.service
+sudo ln -s /home/pi/fablock/Software/fablock.service /etc/systemd/system/fablock.service
 
 sudo systemctl daemon-reload
 sudo systemctl enable fablock.service
 ```
+
+Before starting the fablock you have to input the configuration for telegram in `Software/secrets.py`.
 
 To start the fablock:
 ```
