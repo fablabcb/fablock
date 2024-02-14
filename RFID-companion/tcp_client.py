@@ -17,11 +17,6 @@ RX_NAK = 0x01
 
 con = None
 
-def connection_lost():
-    logger.warning("connection lost")
-    # TODO: send telegram message?
-    # TODO: set indicator light?
-
 def connect():
     """
     Tries to connect to the server.
@@ -47,6 +42,14 @@ def connect():
     con.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, 15) # seconds between keepalive (15s)
     con.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, 4) # maximum number of keepalive fails to be acceptable (4 * 15s = 1min)
     return True
+
+def connection_lost():
+    global con
+    con = None
+
+    logger.warning("connection lost")
+    # TODO: send telegram message?
+    # TODO: set indicator light?
 
 def request_open():
     """
