@@ -1,5 +1,4 @@
 from telegram import Bot
-from telegram.constants import ParseMode
 import asyncio
 import secrets
 
@@ -11,4 +10,4 @@ def __await(fut):
 # wrapper around telegram API that also makes it sync so calling it
 # does not have to deal with async
 def message(text, silent=None):
-    __await(bot.send_message(chat_id=secrets.CHAT_ID, text=text, disable_notification=silent, parse_mode=ParseMode.MARKDOWN_V2))
+    __await(bot.send_message(chat_id=secrets.CHAT_ID, text=text, disable_notification=silent))
