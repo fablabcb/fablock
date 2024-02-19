@@ -1,4 +1,5 @@
 import socket
+import ssl
 import logging
 import config
 
@@ -14,6 +15,9 @@ RX_ACK = 0x00
 # Otherwise the server will respond with a 0x01 byte.
 RX_NAK = 0x01
 
+CLIENT_CERT_PATH = "/home/pi/client.crt"
+CLIENT_KEY_PATH = "/home/pi/client.key"
+SERVER_CERT_PATH = "/home/pi/server.crt"
 
 con = None
 
@@ -29,18 +33,25 @@ def connect():
         return True
 
     try:
-        con = socket.create_connection((config.TCP_HOST, config.TCP_PORT), timeout = 10)
+        sock = socket.create_connection((config.TCP_HOST, config.TCP_PORT), timeout = 10)
     except socket.timeout:
         con = None
         return False
 
     # set socket to blocking mode
-    con.settimeout(None)
+    sock.settimeout(None)
     # enable and configure TCP keepalive
-    con.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
-    con.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, 15) # idle seconds (15s)
-    con.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, 15) # seconds between keepalive (15s)
-    con.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, 4) # maximum number of keepalive fails to be acceptable (4 * 15s = 1min)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+    sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, 15) # idle seconds (15s)
+    sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, 15) # seconds between keepalive (15s)
+    sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, 4) # maximum number of keepalive fails to be acceptable (4 * 15s = 1min)
+
+    context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH, cafile=SERVER_CERT_PATH)
+    context.load_cert_chain(certfile=CLIENT_CERT_PATH, keyfile=CLIENT_KEY_PATH)
+    context.check_hostname = False # checking the hostname on the self signed cert is not necessary
+
+    con = context.wrap_socket(sock)
+
     return True
 
 def connection_lost():

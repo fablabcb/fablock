@@ -6,6 +6,13 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logging.getLogger("httpx").setLevel(logging.WARNING) # do not log every telegram polling request
 # set debug level for states in states.py
 
+NETWORKING_ENABLED = True
+NETWORKING_HOST = "::"
+NETWORKING_PORT = 55555
+TLS_SERVER_CERT_PATH = "/home/pi/server.crt"
+TLS_SERVER_KEY_PATH = "/home/pi/server.key"
+TLS_CLIENT_CERT_PATH = "/home/pi/client.crt"
+
 OPENING = 0
 CLOSING = 1
 

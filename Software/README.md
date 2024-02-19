@@ -18,39 +18,38 @@ Only one connection is possible at a time.
 
 Clone repository:
 
-```
+```sh
 cd /home/pi
-git clone --branch all-in-one-system  https://github.com/fablabcb/fablock.git 
+git clone https://github.com/fablabcb/fablock.git
 ```
 
 Install python packages. In recent versions, python requires the use of venv's.
 
-```
+```sh
 python -m venv venv # creates a venv in the directory 'venv'
 venv/bin/pip3 install telegram python-telegram-bot pygpio
 ```
 
 Install and enable pigpio systemd daemon:
 
-```
+```sh
 sudo apt install pigpio
 sudo systemctl enable pigpiod.service
 ```
 
 Install fablock systemd file:
 
-```
+```sh
 sudo ln -s /home/pi/fablock/Software/fablock.service /etc/systemd/system/fablock.service
-
 sudo systemctl daemon-reload
-sudo systemctl enable fablock.service
 ```
 
 Before starting the fablock you have to input the configuration for telegram in `Software/secrets.py`.
 
-To start the fablock:
-```
+You will also need to either create TLS certificates for the networking protocol or disable the networking protocol in `config.py` by setting `NETWORKING_ENABLED = False`.
+For instructions on creating the certificates, see the instructions in `RFID-companion/README.md`.
+
+```sh
+sudo systemctl enable fablock.service
 sudo systemctl start fablock.service
 ```
-
-or just reboot the pi.

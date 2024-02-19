@@ -49,8 +49,20 @@ is ready to read a card and will be off when the reader is currently disabled
 due to a timeout.
 
 ## Software setup
+Clone the repository
+```sh
+cd /home/pi
+git clone https://github.com/fablabcb/fablock.git
+```
+
 For the SPI bus that was wired up above, you have to enable the SPI bus driver
 with `raspi-config`.
+
+On newer python versions, you will use a venv when installing dependencies.
+```sh
+python -m venv venv
+venv/bin/pip install python-telegram-bot spidev pigpio
+```
 
 For PiGpio to work you may also have to install a system package, e.g. on Raspbian:
 ```sh
@@ -59,18 +71,28 @@ sudo systemctl enable pigpiod.service
 sudo systemctl start pigpiod.service
 ```
 
-On newer python versions, you will use a venv. You can create one in a new diretory `venv` (last parameter) with:
+The connection between the RFID-companion and the main fablock is secured using TLS. For this you will need to create certificates for both the fablock itself as well as the companion. This can be achieved with:
 ```sh
-python -m venv venv
+openssl req -new -newkey rsa:2048 -days 36500 -nodes -x509 -keyout tls.key -out tls.crt
 ```
-Please make sure these python packages are installed in the venv:
-- `python-telegram-bot`
-- `spidev`
-- `pigpio`
+You will probably be asked to input some values, you can input what you want or use the defaults, it does not matter for the purposes of this software.
+The command must be run on each device separately, which will create two files on both devices:
+- an RSA key (`tls.key`, this must be kept private) and
+- a corresponding certificate (`tls.crt`).
 
-E.g. on Raspbian:
-```sh
-venv/bin/pip install python-telegram-bot spidev pigpio
-```
+Once the certificates are created, rename them appropriately to `server.key` and `client.key` and so on for each device. The RFID-companion is the client.
+Copy the certificate (`.crt` file) to the other device, each device must have both certificates. The key files must not be copied as they contain secret data!
+For example on the client (RFID-companion) you should have in total 3 files:
+- `client.key`
+- `client.crt`
+- `server.crt`
 
 You can use the provided `fablock-rfid.service` systemd service file to run the RFID companion.
+
+```sh
+sudo ln -s /home/pi/fablock/RFID-companion/fablock-rfid.service /etc/systemd/system/fablock-rfid.service
+
+sudo systemctl daemon-reload
+sudo systemctl enable fablock-rfid.service
+sudo systemctl start fablock-rfid.service
+```
