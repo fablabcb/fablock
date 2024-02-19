@@ -1,3 +1,4 @@
+import config
 import socket
 import ssl
 import states
@@ -20,10 +21,10 @@ def connection_lost():
     # TODO: send telegram message?
 
 def run():
-    context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH, cafile=config.CLIENT_CERT_PATH)
+    context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH, cafile=config.TLS_CLIENT_CERT_PATH)
     context.verify_mode = ssl.CERT_REQUIRED
     context.check_hostname = False # checking the hostname on the self signed cert is not necessary
-    context.load_cert_chain(certfile=config.SERVER_CERT_PATH, keyfile=config.SERVER_KEY_PATH)
+    context.load_cert_chain(certfile=config.TLS_SERVER_CERT_PATH, keyfile=config.TLS_SERVER_KEY_PATH)
 
     with socket.socket(socket.AF_INET6, socket.SOCK_STREAM) as s:
         s.bind((config.NETWORKING_HOST, config.NETWORKING_PORT))

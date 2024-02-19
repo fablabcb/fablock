@@ -87,7 +87,9 @@ def handle_reader():
             if tcp_client.request_open():
                 config.set_ready(True)
                 config.blink_ready()
-        elif res == cards.E_UNKNOWN or res == cards.E_INVALID:
+        elif res == cards.E_INVALID:
+            message("read card with unexpected data " + comment)
+        elif res == cards.E_UNKNOWN:
             message("read invalid card")
         elif res == cards.E_EXPIRED:
             message("read expired card " + comment)

@@ -6,7 +6,7 @@ StartLimitIntervalSec=0
 
 [Service]
 Type=simple
-WorkingDirectory=/home/pi/venv/
+WorkingDirectory=/home/pi/
 ExecStart=/home/pi/venv/bin/python fablock/RFID-companion/main.py
 User=pi
 Group=pi
