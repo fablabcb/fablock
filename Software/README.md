@@ -27,7 +27,7 @@ Install python packages. In recent versions, python requires the use of venv's.
 
 ```sh
 python -m venv venv # creates a venv in the directory 'venv'
-venv/bin/pip3 install telegram python-telegram-bot pygpio
+venv/bin/pip3 install telegram python-telegram-bot pigpio
 ```
 
 Install and enable pigpio systemd daemon:
