@@ -15,7 +15,7 @@ async def open_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 
     if update.effective_chat.id == secrets.CHAT_ID:
         try:
-            username = update.message.from_user.username
+            username = update.message.from_user.full_name
             await context.bot.send_message(chat_id=update.effective_chat.id, text=f"unlocking for {username} ...")
             states.leave_locked()
         except ValueError:
