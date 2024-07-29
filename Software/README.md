@@ -19,37 +19,27 @@ Only one connection is possible at a time.
 Clone repository:
 
 ```sh
+apt install git # not installed by default on raspbian
 cd /home/pi
 git clone https://github.com/fablabcb/fablock.git
 ```
 
-Install python packages. In recent versions, python requires the use of venv's.
-
+The rest can be done using the install script, which must be run as root to be able to install more packages.
 ```sh
-python -m venv venv # creates a venv in the directory 'venv'
-venv/bin/pip3 install telegram python-telegram-bot pigpio
+sudo ./install.sh
 ```
 
-Install and enable pigpio systemd daemon:
-
-```sh
-sudo apt install pigpio
-sudo systemctl enable pigpiod.service
-```
-
-Install fablock systemd file:
-
-```sh
-sudo ln -s /home/pi/fablock/Software/fablock.service /etc/systemd/system/fablock.service
-sudo systemctl daemon-reload
-```
+To complete the installation, you will need to do the following (the script will also remind you):
 
 Before starting the fablock you have to input the configuration for telegram in `Software/secrets.py`.
 
 You will also need to either create TLS certificates for the networking protocol or disable the networking protocol in `config.py` by setting `NETWORKING_ENABLED = False`.
 For instructions on creating the certificates, see the instructions in `RFID-companion/README.md`.
 
+When you are done, start the service:
+
 ```sh
-sudo systemctl enable fablock.service
 sudo systemctl start fablock.service
 ```
+
+You should see/hear some (short) movement for homing the mechanism to the closed position when starting.
