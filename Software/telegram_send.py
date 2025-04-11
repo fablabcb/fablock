@@ -13,11 +13,11 @@ def __await(fut):
 # wrapper around telegram API that incorporates retries
 # because in the past we have had problems with messages failing to send
 # and the exceptions messing up everything
-async def message_async(text, slient=None, critical=False):
+async def message_async(text, silent=None, critical=False):
     # (re)try up to 5 times if necessary
     for attempt in range(5):
         try:
-            bot.send_message(chat_id=secrets.CHAT_ID, text=text, disable_notifications=silent)
+            await bot.send_message(chat_id=secrets.CHAT_ID, text=text, disable_notification=silent)
             return
         except TimedOut:
             logging.warning(f"connection timeout, attempt={attempt}")
