@@ -17,7 +17,9 @@ async def start_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 async def open_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     logging.debug("callback for /open")
 
-    if (datetime.now() - update.effective_message.date).total_seconds() > OLD_MESSAGE_TIMEOUT:
+    # get the current time in the same time zone as the server's sent date
+    now = datetime.now(update.effective_message.date.tzinfo)
+    if (now - update.effective_message.date).total_seconds() > OLD_MESSAGE_TIMEOUT:
         logging.warning("ignored outdated message")
         return
 
