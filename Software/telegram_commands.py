@@ -21,6 +21,7 @@ async def open_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             await message_async(f"unlocking for {username}", critical=True)
         except RuntimeError:
             logging.error("unlocking failed because message could not be sent")
+            return # don't unlock if this message could not be sent
 
         try:
             states.leave_locked()
