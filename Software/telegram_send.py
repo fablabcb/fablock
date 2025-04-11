@@ -1,5 +1,4 @@
 from telegram import Bot
-from telegram.error import TimedOut
 import asyncio
 import logging
 import secrets
@@ -19,13 +18,13 @@ async def message_async(text, silent=None, critical=False):
         try:
             await bot.send_message(chat_id=secrets.CHAT_ID, text=text, disable_notification=silent)
             return
-        except TimedOut:
-            logging.warning(f"connection timeout, attempt={attempt}")
+        except Exception as e:
+            logging.warning(f"failed to send message, attempt={attempt}", exc_info=e)
             time.sleep(1)
 
-    logging.error(f"sending failed after retries, critical={critical}")
+    logging.error(f"failed to send message on final retry, critical={critical}")
     if critical:
-        raise RuntimeError("message sending timed out")
+        raise RuntimeError("failed to send message")
 
 # wrapper around telegram API that also makes it sync so calling it
 # does not have to deal with async
