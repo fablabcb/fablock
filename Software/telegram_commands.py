@@ -1,3 +1,4 @@
+from datetime import datetime
 from telegram import BotCommand, BotCommandScopeChat, Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
 from telegram_send import message_async
@@ -7,6 +8,7 @@ import secrets
 import states
 
 application = None
+OLD_MESSAGE_TIMEOUT = 30 # seconds
 
 async def start_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     logging.info("callback for /start")
@@ -14,6 +16,10 @@ async def start_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
 async def open_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     logging.debug("callback for /open")
+
+    if (datetime.now() - update.effective_message.date).total_seconds() > OLD_MESSAGE_TIMEOUT:
+        logging.warning("ignored outdated message")
+        return
 
     if update.effective_chat.id == secrets.CHAT_ID:
         try:
