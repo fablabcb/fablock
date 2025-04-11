@@ -1,5 +1,6 @@
 from telegram import BotCommand, BotCommandScopeChat, Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
+from telegram_send import message_async
 import logging
 import asyncio
 import secrets
@@ -8,21 +9,30 @@ import states
 application = None
 
 async def start_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    logging.info("callback for /start")
     await context.bot.send_message(chat_id=update.effective_chat.id, text=str(update.effective_chat.id))
 
 async def open_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    logging.debug("telegram callback")
+    logging.debug("callback for /open")
 
     if update.effective_chat.id == secrets.CHAT_ID:
         try:
             username = update.message.from_user.full_name
-            await context.bot.send_message(chat_id=update.effective_chat.id, text=f"unlocking for {username} ...")
+            await message_async(f"unlocking for {username}", critical=True)
+        except RuntimeError:
+            logging.error("unlocking failed because message could not be sent")
+
+        try:
             states.leave_locked()
         except ValueError:
-            await context.bot.send_message(chat_id=update.effective_chat.id, text="already busy")
+            await message_async("already busy")
     else:
         logging.warning("not authorized: " + update.effective_chat.username)
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="not authorized")
+        try:
+            # not using message_async because this should not be sent to the configured group
+            await context.bot.send_message(chat_id=update.effective_chat.id, text="not authorized")
+        except:
+            pass # don't care if this fails
 
 def listen() -> None:
     global application
