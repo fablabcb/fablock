@@ -6,16 +6,16 @@ set -e
 # will be used to run this file
 cd /home/pi
 
+# install external requirements
+# -y to answer confirmation prompt with yes
+apt -y install pigpio python3
+systemctl enable pigpiod.service
+
 # create a venv in a folder named "venv"
 python3 -m venv venv
 
 # install the required python packages in the venv
 venv/bin/pip3 install telegram python-telegram-bot pigpio
-
-# install external requirements
-# -y to answer confirmation prompt with yes
-apt -y install pigpio python3
-systemctl enable pigpiod.service
 
 systemctl enable /home/pi/fablock/Software/fablock.service
 
