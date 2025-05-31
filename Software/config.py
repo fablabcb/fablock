@@ -3,7 +3,6 @@ import logging
 
 # set debug level for all modules
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-logging.getLogger("httpx").setLevel(logging.WARNING) # do not log every telegram polling request
 # set debug level for states in states.py
 
 NETWORKING_ENABLED = True

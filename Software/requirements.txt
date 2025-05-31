@@ -1,2 +1,2 @@
-python-telegram-bot == 22.1
+requests ~= 2.32.3
 pigpio == 1.78

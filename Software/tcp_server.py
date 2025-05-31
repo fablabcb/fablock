@@ -18,7 +18,7 @@ TX_NAK = 0x01
 
 def connection_lost():
     logger.warning("connection lost")
-    # TODO: send telegram message?
+    # TODO: notify someone?
 
 def run():
     context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH, cafile=config.TLS_CLIENT_CERT_PATH)
