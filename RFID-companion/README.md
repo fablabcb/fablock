@@ -58,19 +58,22 @@ git clone https://github.com/fablabcb/fablock.git
 For the SPI bus that was wired up above, you have to enable the SPI bus driver
 with `raspi-config`.
 
-On newer python versions, you will use a venv when installing dependencies.
+The rest can be done using the install script, which must be run as root to be able to install more packages.
 ```sh
-python -m venv venv
-venv/bin/pip install python-telegram-bot spidev pigpio
+sudo ./install.sh
 ```
 
-For PiGpio to work you may also have to install a system package, e.g. on Raspbian:
+To complete the installation, you will need to do the following (the script will also remind you):
+- Input the configuration for telegram in `RFID-companion/telegram-bot/config.py`
+- Check the configuration for communication with the main fablock in `RFID-companion/config.py`, especially `TCP_HOST` and `TCP`_PORT`
+- Prepare the TLS certificates (see section "TLS setup" below)
+
+When you are done, start the service:
 ```sh
-sudo apt install pigpio
-sudo systemctl enable pigpiod.service
-sudo systemctl start pigpiod.service
+sudo systemctl start fablock-rfid.service
 ```
 
+### TLS setup
 The connection between the RFID-companion and the main fablock is secured using TLS. For this you will need to create certificates for both the fablock itself as well as the companion. This can be achieved with:
 ```sh
 openssl req -new -newkey rsa:2048 -days 36500 -nodes -x509 -keyout tls.key -out tls.crt
@@ -86,13 +89,3 @@ For example on the client (RFID-companion) you should have in total 3 files:
 - `client.key`
 - `client.crt`
 - `server.crt`
-
-You can use the provided `fablock-rfid.service` systemd service file to run the RFID companion.
-
-```sh
-sudo ln -s /home/pi/fablock/RFID-companion/fablock-rfid.service /etc/systemd/system/fablock-rfid.service
-
-sudo systemctl daemon-reload
-sudo systemctl enable fablock-rfid.service
-sudo systemctl start fablock-rfid.service
-```

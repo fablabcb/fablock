@@ -1,0 +1,3 @@
+python-telegram-bot == 22.1
+pigpio == 1.78
+spidev == 3.7

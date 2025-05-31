@@ -1,5 +1,6 @@
 #!/bin/env bash
 
+# exit as soon as there is any error
 set -e
 
 # make sure we are in the correct diretory, especially because sudo
@@ -15,7 +16,7 @@ systemctl enable pigpiod.service
 python3 -m venv venv
 
 # install the required python packages in the venv
-venv/bin/pip3 install telegram python-telegram-bot pigpio
+venv/bin/pip3 install -r requirements.txt
 
 systemctl enable /home/pi/fablock/Software/fablock.service
 
