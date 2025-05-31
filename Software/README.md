@@ -1,8 +1,8 @@
 # fablock bot
 
-This is a telegram bot that opens the fablock.
+This is a Discourse bot that opens the fablock.
 
-You can either trigger the opening by sending a Telegram command to it or by using the TCP interface.
+You can either trigger the opening by sending a Discourse chat message to it or by using the TCP interface.
 The TCP interface is intended for the RFID-companion.
 
 ## TCP interface
@@ -31,7 +31,7 @@ sudo ./install.sh
 
 To complete the installation, you will need to do the following (the script will also remind you):
 
-Before starting the fablock you have to input the configuration for telegram in `Software/secrets.py`.
+Before starting the fablock you have to input the configuration for Discourse in `Software/secret_config.py`.
 
 You will also need to either create TLS certificates for the networking protocol or disable the networking protocol in `config.py` by setting `NETWORKING_ENABLED = False`.
 For instructions on creating the certificates, see the instructions in `RFID-companion/README.md`.

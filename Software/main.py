@@ -1,21 +1,15 @@
 import config
 import states
-import telegram_commands
+import api_commands
 import threading
 import tcp_server
-import asyncio
 
 
 def handle_lock():
-    # separate thread needs separate event loop for sending
-    # telegram messages
-    asyncio.set_event_loop(asyncio.new_event_loop())
-
     # enter initial state
     state_machine = states.StateMachine()
 
     state_machine.run()
-
 
 config.setup()
 
@@ -26,9 +20,7 @@ if config.NETWORKING_ENABLED:
     threading.Thread(target=tcp_server.run, daemon=True).start()
 
 try:
-    # telegram must be handled in the main thread because of some I/O
-    # operations that the library does
-    telegram_commands.listen()
+    api_commands.listen()
 except KeyboardInterrupt:
     print("\nCtrl-C pressed.  Stopping PIGPIO and exiting...")
 finally:

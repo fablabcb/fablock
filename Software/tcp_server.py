@@ -19,7 +19,7 @@ TX_NAK = 0x01
 
 def connection_lost():
     logger.warning("connection lost")
-    # TODO: send telegram message?
+    # TODO: notify someone?
 
 
 def run():

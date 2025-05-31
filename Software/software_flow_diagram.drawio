@@ -4,7 +4,7 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="zgbDZBJy8HB7fsjAfdnr-1" value="open_event triggered&lt;br&gt;&lt;div&gt;(e.g. by Telegram)&lt;/div&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="81YjFIQ1cdnt-nmbqNt_-1" target="wPA8z_1g9L0eMRsK_RC2-3">
+        <mxCell id="zgbDZBJy8HB7fsjAfdnr-1" value="open_event triggered&lt;br&gt;&lt;div&gt;(e.g. by Discourse)&lt;/div&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="81YjFIQ1cdnt-nmbqNt_-1" target="wPA8z_1g9L0eMRsK_RC2-3">
           <mxGeometry x="0.002" relative="1" as="geometry">
             <mxPoint x="376" y="212" as="targetPoint" />
             <Array as="points">
