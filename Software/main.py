@@ -13,14 +13,19 @@ def handle_lock():
     asyncio.set_event_loop(asyncio.new_event_loop())
 
     while True:
-        cases = {
-            states.State.UNLOCKED: states.leave_unlocked,
-            states.State.OPENING_HALTED: states.leave_opening_halted,
-            states.State.OPENING: states.leave_opening,
-            states.State.CLOSING_HALTED: states.leave_closing_halted,
-            states.State.CLOSING: states.leave_closing,
-            states.State.LOCKED: lambda: time.sleep(1) # try to save some energy while locked
-        }[config.state]()
+        match config.state:
+            case states.State.UNLOCKED:
+                states.leave_unlocked()
+            case states.State.OPENING_HALTED:
+                states.leave_opening_halted()
+            case states.State.OPENING:
+                states.leave_opening()
+            case states.State.CLOSING_HALTED:
+                states.leave_closing_halted()
+            case states.State.CLOSING:
+                states.leave_closing()
+            case states.State.LOCKED:
+                time.sleep(1)
         time.sleep(.1)
 
 config.setup()
