@@ -20,15 +20,9 @@ class State(Enum):
     LOCKED = 8
 
 
-# adds State class members to global variables
-globals().update(State.__members__)
-
-
-
-# entering states
 def enter_unlocked():
     logger.debug("entering unlocked")
-    config.state=UNLOCKED
+    config.state = State.UNLOCKED
     config.enter_time = time.perf_counter()
     config.enable_motor(False)
     config.blink_LED(config.LED_MOVING, False)
@@ -46,7 +40,7 @@ def leave_unlocked():
 
 
 def enter_opening():
-    config.state=OPENING
+    config.state = State.OPENING
     logger.debug("entering opening")
     config.set_direction(config.OPENING)
     config.enable_motor(True)
@@ -65,7 +59,7 @@ def leave_opening():
 def enter_opening_halted():
     logger.debug("entering opening_halted")
     config.enter_time = time.perf_counter()
-    config.state=OPENING_HALTED
+    config.state = State.OPENING_HALTED
     config.enable_motor(False)
     config.pi.write(config.LED_OPEN, 0)
     config.pi.write(config.LED_CLOSED, 1)
@@ -94,7 +88,7 @@ def enter_opening_halted_timeout():
 def enter_closing_halted():
     logger.debug("entering closing_halted")
     config.enter_time = time.perf_counter()
-    config.state=CLOSING_HALTED
+    config.state = State.CLOSING_HALTED
     config.enable_motor(False)
     config.pi.write(config.LED_OPEN, 1)
     config.pi.write(config.LED_CLOSED, 0)
@@ -121,7 +115,7 @@ def enter_closing_halted_timeout():
 
 
 def enter_closing():
-    config.state=CLOSING
+    config.state = State.CLOSING
     logger.debug("entering closing")
     config.set_direction(config.CLOSING)
     config.enable_motor(True)
@@ -139,7 +133,7 @@ def leave_closing():
 
 def enter_locked():
     logger.debug("entering locked")
-    config.state=LOCKED
+    config.state = State.LOCKED
     config.enable_motor(False)
     config.blink_LED(config.LED_MOVING, False)
     config.pi.write(config.LED_OPEN, 0)
@@ -147,6 +141,6 @@ def enter_locked():
     message("\U0001f512 window locked", silent=True)
 
 def leave_locked():
-    if config.state != LOCKED:
+    if config.state != State.LOCKED:
         raise ValueError("not in locked state")
     enter_opening_halted()

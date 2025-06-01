@@ -1,5 +1,6 @@
 import pigpio # http://abyz.me.uk/rpi/pigpio/
 import logging
+import states
 
 # set debug level for all modules
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -17,7 +18,7 @@ OPENING = 0
 CLOSING = 1
 
 enter_time = 0.0
-state = 5
+state = states.State.CLOSING_HALTED
 
 ## Pin Numbering Scheme: BCM
 

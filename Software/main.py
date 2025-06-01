@@ -1,12 +1,11 @@
 import config
-from states import *
+import states
 import telegram_commands
 import threading
 import time
 import tcp_server
 import asyncio
 
-globals().update(State.__members__)
 
 def handle_lock():
     # separate thread needs separate event loop for sending
@@ -15,12 +14,12 @@ def handle_lock():
 
     while True:
         cases = {
-            UNLOCKED: leave_unlocked,
-            OPENING_HALTED: leave_opening_halted,
-            OPENING: leave_opening,
-            CLOSING_HALTED: leave_closing_halted,
-            CLOSING: leave_closing,
-            LOCKED: lambda: time.sleep(1) # try to save some energy while locked
+            states.State.UNLOCKED: states.leave_unlocked,
+            states.State.OPENING_HALTED: states.leave_opening_halted,
+            states.State.OPENING: states.leave_opening,
+            states.State.CLOSING_HALTED: states.leave_closing_halted,
+            states.State.CLOSING: states.leave_closing,
+            states.State.LOCKED: lambda: time.sleep(1) # try to save some energy while locked
         }[config.state]()
         time.sleep(.1)
 
