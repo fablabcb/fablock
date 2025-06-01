@@ -12,6 +12,9 @@ def handle_lock():
     # telegram messages
     asyncio.set_event_loop(asyncio.new_event_loop())
 
+    # enter initial state
+    states.enter_closing_halted()
+
     while True:
         match config.state:
             case states.State.UNLOCKED:
@@ -25,13 +28,10 @@ def handle_lock():
             case states.State.CLOSING:
                 states.leave_closing()
             case states.State.LOCKED:
-                time.sleep(1)
+                states.leave_locked()
         time.sleep(.1)
 
 config.setup()
-
-# enter initial state
-enter_closing_halted()
 
 # start hardware handler in a separate thread
 threading.Thread(target=handle_lock, daemon=True).start()

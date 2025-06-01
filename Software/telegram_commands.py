@@ -32,7 +32,7 @@ async def open_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             return # don't unlock if this message could not be sent
 
         try:
-            states.leave_locked()
+            states.unlock()
         except ValueError:
             await message_async("already busy")
     else:

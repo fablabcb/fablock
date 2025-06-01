@@ -3,9 +3,12 @@ import time
 import config
 from telegram_send import message
 import logging
+import threading
 
 logger = logging.getLogger(__name__)
 # logger.setLevel(logging.DEBUG)
+
+unlock_event = threading.Event()
 
 
 class State(Enum):
@@ -139,8 +142,24 @@ def enter_locked():
     config.pi.write(config.LED_OPEN, 0)
     config.pi.write(config.LED_CLOSED, 1)
     message("\U0001f512 window locked", silent=True)
+    unlock_event.clear()
+
 
 def leave_locked():
+    unlock_event.wait()
     if config.state != State.LOCKED:
         raise ValueError("not in locked state")
     enter_opening_halted()
+
+
+def unlock() -> bool:
+    """
+    Attempt to unlock and return success.
+
+    If the window is already unlocked, returns `False`.
+    """
+    if unlock_event.is_set():
+        return False
+    else:
+        unlock_event.set()
+        return True

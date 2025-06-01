@@ -72,7 +72,7 @@ def run():
                     if data[0] == RX_OPEN:
                         logger.info("opening requested")
                         try:
-                            states.leave_locked()
+                            states.unlock()
                             con.sendall(bytes([TX_ACK]))
                         except ValueError:
                             con.sendall(bytes([TX_NAK]))
