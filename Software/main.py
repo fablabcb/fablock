@@ -40,7 +40,7 @@ try:
     # operations that the library does
     telegram_commands.listen()
 except KeyboardInterrupt:
-    print ("\nCtrl-C pressed.  Stopping PIGPIO and exiting...")
+    print("\nCtrl-C pressed.  Stopping PIGPIO and exiting...")
 finally:
     config.enable_motor(False)
     config.pi.write(config.LED_OPEN, 0)
