@@ -30,6 +30,23 @@ class StateMachine:
     def __init__(self):
         self.enter_closing_halted()
 
+    def run(self):
+        while True:
+            match self.state:
+                case State.UNLOCKED:
+                    self.leave_unlocked()
+                case State.OPENING_HALTED:
+                    self.leave_opening_halted()
+                case State.OPENING:
+                    self.leave_opening()
+                case State.CLOSING_HALTED:
+                    self.leave_closing_halted()
+                case State.CLOSING:
+                    self.leave_closing()
+                case State.LOCKED:
+                    self.leave_locked()
+            time.sleep(0.1)
+
     def enter_unlocked(self):
         logger.debug("entering unlocked")
         self.state = State.UNLOCKED

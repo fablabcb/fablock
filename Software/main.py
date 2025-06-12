@@ -2,7 +2,6 @@ import config
 import states
 import telegram_commands
 import threading
-import time
 import tcp_server
 import asyncio
 
@@ -15,21 +14,7 @@ def handle_lock():
     # enter initial state
     state_machine = states.StateMachine()
 
-    while True:
-        match state_machine.state:
-            case states.State.UNLOCKED:
-                state_machine.leave_unlocked()
-            case states.State.OPENING_HALTED:
-                state_machine.leave_opening_halted()
-            case states.State.OPENING:
-                state_machine.leave_opening()
-            case states.State.CLOSING_HALTED:
-                state_machine.leave_closing_halted()
-            case states.State.CLOSING:
-                state_machine.leave_closing()
-            case states.State.LOCKED:
-                state_machine.leave_locked()
-        time.sleep(0.1)
+    state_machine.run()
 
 
 config.setup()
