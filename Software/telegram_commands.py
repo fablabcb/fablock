@@ -7,7 +7,6 @@ import asyncio
 import secret_config
 import states
 
-application = None
 OLD_MESSAGE_TIMEOUT = 30 # seconds
 
 async def start_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -42,8 +41,6 @@ async def open_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             pass # don't care if this fails
 
 def listen() -> None:
-    global application
-
     application = ApplicationBuilder().token(secret_config.TELEGRAM_TOKEN).build()
     application.add_handler(CommandHandler('start', start_callback))
     application.add_handler(CommandHandler('open', open_callback))
