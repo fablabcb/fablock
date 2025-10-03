@@ -35,9 +35,8 @@ LED_CLOSED = 15
 
 # input switches
 # push open type (low if pushed, normally closed NC)
-# MWO/C ... Motor Window Open/Closed
-SW_MWO = 27 # window handle in unlocked position (stop motor if low, if switch is pressed)
-SW_MWC = 22 # window handle in locked position (stop motor if low, if switch is pressed)
+SW_LIMIT_OPEN = 27 # window handle in unlocked position (stop motor if low, if switch is pressed)
+SW_LIMIT_CLOSED = 22 # window handle in locked position (stop motor if low, if switch is pressed)
 
 # push type (high if pushed, normally open NO)
-SW_WIN = 26 # window open (stop motor if low, if switch is not pressed)
+SW_WINDOW_OPEN = 26 # window open (stop motor if low, if switch is not pressed)

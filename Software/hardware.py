@@ -4,15 +4,15 @@ import pigpio  # http://abyz.me.uk/rpi/pigpio/
 
 
 def endstop_unlocked_reached():
-    return __pi.read(config.SW_MWO) == 0
+    return __pi.read(config.SW_LIMIT_OPEN) == 0
 
 
 def endstop_locked_reached():
-    return __pi.read(config.SW_MWC) == 0
+    return __pi.read(config.SW_LIMIT_CLOSED) == 0
 
 
 def window_open():
-    return __pi.read(config.SW_WIN) == 0
+    return __pi.read(config.SW_WINDOW_OPEN) == 0
 
 
 # Connect to pigpiod daemon
@@ -28,14 +28,14 @@ def setup():
     __pi.set_mode(config.LED_CLOSED, pigpio.OUTPUT)
     __pi.set_mode(config.LED_MOVING, pigpio.OUTPUT)
     __pi.set_mode(config.LED_OPEN, pigpio.OUTPUT)
-    __pi.set_mode(config.SW_MWO, pigpio.INPUT)
-    __pi.set_mode(config.SW_MWC, pigpio.INPUT)
-    __pi.set_mode(config.SW_WIN, pigpio.INPUT)
+    __pi.set_mode(config.SW_LIMIT_OPEN, pigpio.INPUT)
+    __pi.set_mode(config.SW_LIMIT_CLOSED, pigpio.INPUT)
+    __pi.set_mode(config.SW_WINDOW_OPEN, pigpio.INPUT)
 
     # Set up input switches
-    __pi.set_pull_up_down(config.SW_MWO, pigpio.PUD_DOWN)
-    __pi.set_pull_up_down(config.SW_MWC, pigpio.PUD_DOWN)
-    __pi.set_pull_up_down(config.SW_WIN, pigpio.PUD_DOWN)
+    __pi.set_pull_up_down(config.SW_LIMIT_OPEN, pigpio.PUD_DOWN)
+    __pi.set_pull_up_down(config.SW_LIMIT_CLOSED, pigpio.PUD_DOWN)
+    __pi.set_pull_up_down(config.SW_WINDOW_OPEN, pigpio.PUD_DOWN)
 
 
 # enable Polulu driver (pass false, to disable)
