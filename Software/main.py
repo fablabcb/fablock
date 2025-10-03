@@ -1,34 +1,43 @@
+import logging
 import config
 import states
-import telegram_commands
 import threading
-import tcp_server
-import asyncio
-
-
-def handle_lock():
-    # separate thread needs separate event loop for sending
-    # telegram messages
-    asyncio.set_event_loop(asyncio.new_event_loop())
-
-    # enter initial state
-    state_machine = states.StateMachine()
-
-    state_machine.run()
-
+import handlers.telegram_handler, handlers.tcp_handler
 
 config.setup()
 
-# start hardware handler in a separate thread
-threading.Thread(target=handle_lock, daemon=True).start()
-# start TCP handler in a separate thread
+ingress_handlers: list[handlers.Handler] = [handlers.telegram_handler.TelegramHandler()]
+
 if config.NETWORKING_ENABLED:
-    threading.Thread(target=tcp_server.run, daemon=True).start()
+    ingress_handlers.append(handlers.tcp_handler.TcpHandler())
+
+
+def request_open(name: str) -> bool:
+    try:
+        for handler in ingress_handlers:
+            handler.broadcast(f"opening for {name}", critical=True)
+    except RuntimeError:
+        logging.error("unlocking failed because message could not be sent")
+        return False  # don't unlock if this message could not be sent
+
+    return states.unlock()
+
+
+def broadcast(message: str):
+    for handler in ingress_handlers:
+        try:
+            handler.broadcast(message)
+        except:
+            pass
+
+
+for handler in ingress_handlers:
+    threading.Thread(target=handler.listen, args=[request_open], daemon=True).start()
 
 try:
-    # telegram must be handled in the main thread because of some I/O
-    # operations that the library does
-    telegram_commands.listen()
+    # enter initial state
+    state_machine = states.StateMachine(broadcast)
+    state_machine.run()
 except KeyboardInterrupt:
     print("\nCtrl-C pressed.  Stopping PIGPIO and exiting...")
 finally:

@@ -1,7 +1,7 @@
+from collections.abc import Callable
 from enum import Enum
 import time
 import config
-from telegram_send import message
 import logging
 import threading
 
@@ -26,8 +26,10 @@ class State(Enum):
 class StateMachine:
     state: State = State.CLOSING_HALTED
     enter_time: float = 0.0
+    message: Callable[[str], None]
 
-    def __init__(self):
+    def __init__(self, message):
+        self.message = message
         self.enter_closing_halted()
 
     def run(self):
@@ -55,7 +57,7 @@ class StateMachine:
         config.blink_LED(config.LED_MOVING, False)
         config.pi.write(config.LED_CLOSED, 0)
         config.pi.write(config.LED_OPEN, 1)
-        message("\U0001f7e2 window open", silent=True)
+        self.message("\U0001f7e2 window open")
 
     def leave_unlocked(self):
         if (
@@ -102,7 +104,7 @@ class StateMachine:
             + "minutes!"
         )
         logger.warning(msg)
-        message(msg)
+        self.message(msg)
         self.enter_opening_halted()
 
     def enter_closing_halted(self):
@@ -128,7 +130,7 @@ class StateMachine:
             + "minutes!"
         )
         logger.warning(msg)
-        message(msg)
+        self.message(msg)
         self.enter_closing_halted()
 
     def enter_closing(self):
@@ -153,7 +155,7 @@ class StateMachine:
         config.blink_LED(config.LED_MOVING, False)
         config.pi.write(config.LED_OPEN, 0)
         config.pi.write(config.LED_CLOSED, 1)
-        message("\U0001f512 window locked", silent=True)
+        self.message("\U0001f512 window locked")
         unlock_event.clear()
 
     def leave_locked(self):
