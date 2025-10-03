@@ -31,9 +31,7 @@ async def open_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             logging.error("unlocking failed because message could not be sent")
             return # don't unlock if this message could not be sent
 
-        try:
-            states.unlock()
-        except ValueError:
+        if not states.unlock():
             await message_async("already busy")
     else:
         logging.warning("not authorized: " + update.effective_chat.username)
