@@ -1,10 +1,10 @@
 from telegram import Bot
 import asyncio
 import logging
-import secrets
+import secret_config
 import time
 
-bot = Bot(secrets.TELEGRAM_TOKEN)
+bot = Bot(secret_config.TELEGRAM_TOKEN)
 
 def __await(fut):
     asyncio.get_event_loop().run_until_complete(fut)
@@ -16,7 +16,7 @@ async def message_async(text, silent=None, critical=False):
     # (re)try up to 5 times if necessary
     for attempt in range(5):
         try:
-            await bot.send_message(chat_id=secrets.CHAT_ID, text=text, disable_notification=silent)
+            await bot.send_message(chat_id=secret_config.TELEGRAM_CHAT_ID, text=text, disable_notification=silent)
             return
         except Exception as e:
             logging.warning(f"failed to send message, attempt={attempt}", exc_info=e)

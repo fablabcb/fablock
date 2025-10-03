@@ -22,9 +22,9 @@ systemctl enable /home/pi/fablock/Software/fablock.service
 
 echo "WHAT TO DO NOW:"
 echo ""
-echo "- edit the secrets configuration file"
+echo "- edit the secret configuration file"
 echo ""
-echo "    $EDITOR /home/pi/fablock/Software/secrets.py"
+echo "    $EDITOR /home/pi/fablock/Software/secret_config.py"
 echo ""
 echo "- create TLS certificates or disable network integration by setting 'NETWORKING_ENABLED = False' in config.py"
 echo ""

@@ -4,7 +4,7 @@ from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
 from telegram_send import message_async
 import logging
 import asyncio
-import secrets
+import secret_config
 import states
 
 application = None
@@ -23,7 +23,7 @@ async def open_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         logging.warning("ignored outdated message")
         return
 
-    if update.effective_chat.id == secrets.CHAT_ID:
+    if update.effective_chat.id == secret_config.TELEGRAM_CHAT_ID:
         try:
             username = update.message.from_user.full_name
             await message_async(f"unlocking for {username}", critical=True)
@@ -46,7 +46,7 @@ async def open_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 def listen() -> None:
     global application
 
-    application = ApplicationBuilder().token(secrets.TELEGRAM_TOKEN).build()
+    application = ApplicationBuilder().token(secret_config.TELEGRAM_TOKEN).build()
     application.add_handler(CommandHandler('start', start_callback))
     application.add_handler(CommandHandler('open', open_callback))
 
@@ -56,7 +56,7 @@ def listen() -> None:
             #BotCommand('start', 'retrieve chat ID'),
             BotCommand('open', 'open fablock'),
         ],
-        BotCommandScopeChat(secrets.CHAT_ID)
+        BotCommandScopeChat(secret_config.TELEGRAM_CHAT_ID)
     ))
 
     application.run_polling()
