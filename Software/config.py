@@ -46,19 +46,10 @@ def endstop_unlocked_reached():
 def endstop_locked_reached():
     return pi.read(SW_MWC) == 0
 
-# TODO determine whether key is retained in open or closed state
-SW_KEY = 17 # key switch
-
 # push type (high if pushed, normally open NO)
 SW_WIN = 26 # window open (stop motor if low, if switch is not pressed)
 def window_open():
     return pi.read(SW_WIN) == 0
-
-
-# future external signals
-SESAME_OPEN    = 16
-SESAME_OPENING = 21
-SESAME_CLOSING = 20
 
 # Connect to pigpiod daemon
 pi = pigpio.pi()
@@ -75,16 +66,11 @@ def setup():
     pi.set_mode(SW_MWO, pigpio.INPUT)
     pi.set_mode(SW_MWC, pigpio.INPUT)
     pi.set_mode(SW_WIN, pigpio.INPUT)
-    pi.set_mode(SW_KEY, pigpio.INPUT)
-    pi.set_mode(SESAME_OPEN, pigpio.OUTPUT)
-    pi.set_mode(SESAME_OPENING, pigpio.OUTPUT)
-    pi.set_mode(SESAME_CLOSING, pigpio.OUTPUT)
 
     # Set up input switches
     pi.set_pull_up_down(SW_MWO, pigpio.PUD_DOWN)
     pi.set_pull_up_down(SW_MWC, pigpio.PUD_DOWN)
     pi.set_pull_up_down(SW_WIN, pigpio.PUD_DOWN)
-    pi.set_pull_up_down(SW_KEY, pigpio.PUD_DOWN)
 
 
 # enable Polulu driver (pass false, to disable)
