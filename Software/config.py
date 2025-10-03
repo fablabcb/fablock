@@ -1,4 +1,3 @@
-import pigpio # http://abyz.me.uk/rpi/pigpio/
 import logging
 
 # set debug level for all modules
@@ -13,8 +12,8 @@ TLS_SERVER_CERT_PATH = "/home/pi/server.crt"
 TLS_SERVER_KEY_PATH = "/home/pi/server.key"
 TLS_CLIENT_CERT_PATH = "/home/pi/client.crt"
 
-OPENING = 0
-CLOSING = 1
+OPENING = False
+CLOSING = not OPENING
 
 ## Pin Numbering Scheme: BCM
 
@@ -40,51 +39,5 @@ LED_CLOSED = 15
 SW_MWO = 27 # window handle in unlocked position (stop motor if low, if switch is pressed)
 SW_MWC = 22 # window handle in locked position (stop motor if low, if switch is pressed)
 
-def endstop_unlocked_reached():
-    return pi.read(SW_MWO) == 0
-
-def endstop_locked_reached():
-    return pi.read(SW_MWC) == 0
-
 # push type (high if pushed, normally open NO)
 SW_WIN = 26 # window open (stop motor if low, if switch is not pressed)
-def window_open():
-    return pi.read(SW_WIN) == 0
-
-# Connect to pigpiod daemon
-pi = pigpio.pi()
-
-def setup():
-    # Set up pins
-    pi.set_mode(DIR, pigpio.OUTPUT)
-    pi.set_mode(STEP, pigpio.OUTPUT)
-    pi.set_mode(SLEEP, pigpio.OUTPUT)
-    pi.set_mode(ENABLE, pigpio.OUTPUT)
-    pi.set_mode(LED_CLOSED, pigpio.OUTPUT)
-    pi.set_mode(LED_MOVING, pigpio.OUTPUT)
-    pi.set_mode(LED_OPEN, pigpio.OUTPUT)
-    pi.set_mode(SW_MWO, pigpio.INPUT)
-    pi.set_mode(SW_MWC, pigpio.INPUT)
-    pi.set_mode(SW_WIN, pigpio.INPUT)
-
-    # Set up input switches
-    pi.set_pull_up_down(SW_MWO, pigpio.PUD_DOWN)
-    pi.set_pull_up_down(SW_MWC, pigpio.PUD_DOWN)
-    pi.set_pull_up_down(SW_WIN, pigpio.PUD_DOWN)
-
-
-# enable Polulu driver (pass false, to disable)
-def enable_motor(state=True):
-    pi.write(SLEEP, state)
-    pi.write(ENABLE, not state)
-    pi.hardware_PWM(STEP, MOTOR_FREQ, MOTOR_DUTY if state else 0)
-
-def set_direction(direction):
-    pi.write(DIR, direction)
-
-def blink_LED(LED, on=True):
-    if on:
-        pi.set_PWM_frequency(LED, 0)
-        pi.set_PWM_dutycycle(LED, 64)
-    else:
-        pi.set_PWM_dutycycle(LED, 0)

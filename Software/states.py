@@ -2,6 +2,7 @@ from collections.abc import Callable
 from enum import Enum
 import time
 import config
+import hardware
 import logging
 import threading
 
@@ -53,47 +54,40 @@ class StateMachine:
         logger.debug("entering unlocked")
         self.state = State.UNLOCKED
         self.enter_time = time.perf_counter()
-        config.enable_motor(False)
-        config.blink_LED(config.LED_MOVING, False)
-        config.pi.write(config.LED_CLOSED, 0)
-        config.pi.write(config.LED_OPEN, 1)
+        hardware.enable_motor(False)
+        hardware.show_status(hardware.LedStatus.OPEN)
         self.message("\U0001f7e2 window open")
 
     def leave_unlocked(self):
         if (
             time.perf_counter() > self.enter_time + config.UNLOCKED_TIMEOUT
-            or config.window_open()
+            or hardware.window_open()
         ):
             self.enter_closing_halted()
 
     def enter_opening(self):
         self.state = State.OPENING
         logger.debug("entering opening")
-        config.set_direction(config.OPENING)
-        config.enable_motor(True)
-        config.pi.write(config.LED_CLOSED, 1)
-        config.pi.write(config.LED_OPEN, 0)
-        config.blink_LED(config.LED_MOVING)
+        hardware.set_direction(config.OPENING)
+        hardware.enable_motor(True)
+        hardware.show_status(hardware.LedStatus.MOVING)
 
     def leave_opening(self):
-        if config.window_open():
+        if hardware.window_open():
             self.enter_opening_halted()
-        elif config.endstop_unlocked_reached():
+        elif hardware.endstop_unlocked_reached():
             self.enter_unlocked()
 
     def enter_opening_halted(self):
         logger.debug("entering opening_halted")
         self.enter_time = time.perf_counter()
         self.state = State.OPENING_HALTED
-        config.enable_motor(False)
-        config.pi.write(config.LED_OPEN, 0)
-        config.pi.write(config.LED_CLOSED, 1)
-        config.blink_LED(config.LED_MOVING, False)
+        hardware.enable_motor(False)
 
     def leave_opening_halted(self):
         if time.perf_counter() > self.enter_time + config.MOVING_HALTED_TIMEOUT:
             self.enter_opening_halted_timeout()
-        elif not config.window_open():
+        elif not hardware.window_open():
             self.enter_opening()
 
     def enter_opening_halted_timeout(self):
@@ -111,15 +105,12 @@ class StateMachine:
         logger.debug("entering closing_halted")
         self.enter_time = time.perf_counter()
         self.state = State.CLOSING_HALTED
-        config.enable_motor(False)
-        config.pi.write(config.LED_OPEN, 1)
-        config.pi.write(config.LED_CLOSED, 0)
-        config.blink_LED(config.LED_MOVING, False)
+        hardware.enable_motor(False)
 
     def leave_closing_halted(self):
         if time.perf_counter() > self.enter_time + config.MOVING_HALTED_TIMEOUT:
             self.enter_closing_halted_timeout()
-        elif not config.window_open():
+        elif not hardware.window_open():
             self.enter_closing()
 
     def enter_closing_halted_timeout(self):
@@ -136,25 +127,21 @@ class StateMachine:
     def enter_closing(self):
         self.state = State.CLOSING
         logger.debug("entering closing")
-        config.set_direction(config.CLOSING)
-        config.enable_motor(True)
-        config.pi.write(config.LED_OPEN, 1)
-        config.pi.write(config.LED_CLOSED, 0)
-        config.blink_LED(config.LED_MOVING)
+        hardware.set_direction(config.CLOSING)
+        hardware.enable_motor(True)
+        hardware.show_status(hardware.LedStatus.MOVING)
 
     def leave_closing(self):
-        if config.window_open():
+        if hardware.window_open():
             self.enter_closing_halted()
-        elif config.endstop_locked_reached():
+        elif hardware.endstop_locked_reached():
             self.enter_locked()
 
     def enter_locked(self):
         logger.debug("entering locked")
         self.state = State.LOCKED
-        config.enable_motor(False)
-        config.blink_LED(config.LED_MOVING, False)
-        config.pi.write(config.LED_OPEN, 0)
-        config.pi.write(config.LED_CLOSED, 1)
+        hardware.enable_motor(False)
+        hardware.show_status(hardware.LedStatus.LOCKED)
         self.message("\U0001f512 window locked")
         unlock_event.clear()
 
