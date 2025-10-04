@@ -1,4 +1,5 @@
-from collections.abc import Callable
+import asyncio
+from collections.abc import Awaitable, Callable
 import config
 import logging
 import socket
@@ -20,7 +21,7 @@ TX_NAK = 0x01
 
 
 class TcpHandler(Handler):
-    def listen(self, request_open: Callable[[str], bool]):
+    async def listen(self, request_open: Callable[[str], Awaitable[bool]]):
         context = ssl.create_default_context(
             ssl.Purpose.CLIENT_AUTH, cafile=config.TLS_CLIENT_CERT_PATH
         )
@@ -32,51 +33,67 @@ class TcpHandler(Handler):
             certfile=config.TLS_SERVER_CERT_PATH, keyfile=config.TLS_SERVER_KEY_PATH
         )
 
-        with socket.socket(socket.AF_INET6, socket.SOCK_STREAM) as s:
-            s.bind((config.NETWORKING_HOST, config.NETWORKING_PORT))
-            # only accept one connection at a time
-            s.listen(0)
+        lock = asyncio.Lock()
 
-            while True:
-                con, addr = s.accept()
-                # enable and configure TCP keepalive
-                con.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
-                con.setsockopt(
-                    socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, 15
-                )  # idle seconds (15s)
-                con.setsockopt(
-                    socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, 15
-                )  # seconds between keepalive (15s)
-                con.setsockopt(
-                    socket.IPPROTO_TCP, socket.TCP_KEEPCNT, 4
-                )  # maximum number of keepalive fails to be acceptable (4 * 15s = 1min)
+        def setup_connection(client_writer: asyncio.StreamWriter):
+            # enable and configure TCP keepalive
+            con: ssl.SSLSocket = client_writer.get_extra_info("ssl_object")
+            con.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+            con.setsockopt(
+                socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, 15
+            )  # idle seconds (15s)
+            con.setsockopt(
+                socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, 15
+            )  # seconds between keepalive (15s)
+            con.setsockopt(
+                socket.IPPROTO_TCP, socket.TCP_KEEPCNT, 4
+            )  # maximum number of keepalive fails to be acceptable (4 * 15s = 1min)
 
-                logger.info("connection from " + repr(addr))
-                with context.wrap_socket(con, server_side=True) as con:
-                    while True:
-                        try:
-                            # receive a packet (1 byte)
-                            data = con.recv(1)
-                        except Exception as e:
-                            # some error during receiving, might have been a timeout
-                            logger.error("error while receiving", exc_info=e)
-                            break
+            addr = con.getpeername()
+            logger.info("connection from " + repr(addr))
 
-                        if len(data) == 0:
-                            logger.error("received empty data")
-                            break
+        async def client_handler(
+            client_reader: asyncio.StreamReader, client_writer: asyncio.StreamWriter
+        ):
+            if lock.locked():
+                # only one concurrent connection is allowed
+                return
 
-                        if data[0] == RX_OPEN:
-                            logger.info("opening requested")
-                            # TODO transmit and use actual name
-                            if request_open("RFID"):
-                                con.sendall(bytes([TX_ACK]))
-                            else:
-                                con.sendall(bytes([TX_NAK]))
+            async with lock:
+                setup_connection(client_writer)
+
+                while True:
+                    try:
+                        # receive a packet (1 byte)
+                        data = await client_reader.readexactly(1)
+                    except Exception as e:
+                        # some error during receiving, might have been a timeout
+                        logger.error("error while receiving", exc_info=e)
+                        break
+
+                    assert len(data) == 1
+
+                    if data[0] == RX_OPEN:
+                        logger.info("opening requested")
+                        # TODO transmit and use actual name
+                        if await request_open("RFID"):
+                            client_writer.write(bytes([TX_ACK]))
                         else:
-                            logger.warning(
-                                "closing connection due to unrecognized message: ",
-                                repr(data),
-                            )
-                            break
-                logger.warning("connection lost")
+                            client_writer.write(bytes([TX_NAK]))
+                        await client_writer.drain()
+                    else:
+                        logger.warning(
+                            "closing connection due to unrecognized message: ",
+                            repr(data),
+                        )
+                        break
+                logger.info("connection lost")
+
+        await asyncio.start_server(
+            client_handler,
+            config.NETWORKING_HOST,
+            config.NETWORKING_PORT,
+            family=socket.AF_INET6,
+            limit=1,
+            ssl=context,
+        )

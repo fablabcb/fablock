@@ -1,4 +1,4 @@
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable
 import asyncio
 import logging
 import time
@@ -9,10 +9,6 @@ import secret_config
 from . import Handler
 
 OLD_MESSAGE_TIMEOUT_SEC = 30
-
-
-def __await(fut):
-    asyncio.get_event_loop().run_until_complete(fut)
 
 
 logger = logging.getLogger("telegram_handler")
@@ -29,14 +25,12 @@ class TelegramHandler(Handler):
     # wrapper around telegram API that incorporates retries
     # because in the past we have had problems with messages failing to send
     # and the exceptions messing up everything
-    def broadcast(self, message: str, critical: bool = False):
+    async def broadcast(self, message: str, critical: bool = False):
         # (re)try up to 5 times if necessary
         for attempt in range(5):
             try:
-                __await(
-                    self.bot.send_message(
-                        chat_id=secret_config.TELEGRAM_CHAT_ID, text=message
-                    )
+                await self.bot.send_message(
+                    chat_id=secret_config.TELEGRAM_CHAT_ID, text=message
                 )
                 return
             except Exception as e:
@@ -47,7 +41,7 @@ class TelegramHandler(Handler):
         if critical:
             raise RuntimeError("failed to send message")
 
-    def listen(self, request_open: Callable[[str], bool]):
+    async def listen(self, request_open: Callable[[str], Awaitable[bool]]):
         # separate thread needs separate event loop
         asyncio.set_event_loop(asyncio.new_event_loop())
 
@@ -74,7 +68,7 @@ class TelegramHandler(Handler):
 
             if update.effective_chat.id == secret_config.TELEGRAM_CHAT_ID:
                 username = update.message.from_user.full_name
-                if not request_open(username):
+                if not await request_open(username):
                     await context.bot.send_message(
                         chat_id=update.effective_chat.id, text="already busy"
                     )
@@ -92,15 +86,15 @@ class TelegramHandler(Handler):
         application.add_handler(CommandHandler("start", start_callback))
         application.add_handler(CommandHandler("open", open_handler))
 
-        asyncio.get_event_loop().run_until_complete(
-            application.bot.set_my_commands(
-                [
-                    # /start is not documented because it is not intended to be used generally
-                    # BotCommand('start', 'retrieve chat ID'),
-                    BotCommand("open", "open fablock"),
-                ],
-                BotCommandScopeChat(secret_config.TELEGRAM_CHAT_ID),
-            )
+        await application.bot.set_my_commands(
+            [
+                # /start is not documented because it is not intended to be used generally
+                # BotCommand('start', 'retrieve chat ID'),
+                BotCommand("open", "open fablock"),
+            ],
+            BotCommandScopeChat(secret_config.TELEGRAM_CHAT_ID),
         )
 
-        application.run_polling()
+        async with application:
+            await application.updater.start_polling()
+            await application.start()

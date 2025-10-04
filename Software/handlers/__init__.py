@@ -1,8 +1,8 @@
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable
 
 
 class Handler:
-    def broadcast(self, message: str, critical: bool = False):
+    async def broadcast(self, message: str, critical: bool = False):
         """
         Send a broadcast message to this channel.
 
@@ -13,7 +13,7 @@ class Handler:
         """
         pass
 
-    def listen(self, request_open: Callable[[str], bool]):
+    async def listen(self, request_open: Callable[[str], Awaitable[bool]]):
         """
         Runs the event loop for this channel.
 
