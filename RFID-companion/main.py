@@ -3,8 +3,6 @@ import telegram_bot.commands
 import rfid_listener
 import threading
 import queue
-import time
-import asyncio
 import tcp_client
 
 config.setup()
@@ -12,13 +10,16 @@ tcp_client.connect()
 
 rfid_command_queue = queue.SimpleQueue()
 
+rfid = rfid_listener.RfidListener(rfid_command_queue)
+telegram = telegram_bot.commands.TelegramListener(rfid_command_queue)
+
 # start RFID management in a separate thread
-threading.Thread(target=rfid_listener.listen, args=(rfid_command_queue,), daemon=True).start()
+threading.Thread(target=rfid.listen, daemon=True).start()
 
 try:
-    telegram_bot.commands.listen(rfid_command_queue)
+    telegram.listen()
 except KeyboardInterrupt:
-    print ("\nCtrl-C pressed.  Stopping PIGPIO and exiting...")
+    print("\nCtrl-C pressed.  Stopping PIGPIO and exiting...")
 finally:
     config.enable_rfid(False)
     config.pi.stop()

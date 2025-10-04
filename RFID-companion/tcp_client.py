@@ -19,9 +19,28 @@ CLIENT_CERT_PATH = "/home/pi/client.crt"
 CLIENT_KEY_PATH = "/home/pi/client.key"
 SERVER_CERT_PATH = "/home/pi/server.crt"
 
-con = None
+def check_socket_alive(sock: ssl.SSLSocket) -> bool:
+    try:
+        # this will try to read bytes without blocking and also without removing them from buffer (peek only)
+        sock.setblocking(False)
+        data = sock.recv(1, socket.MSG_PEEK)
+        if len(data) == 0:
+            return False
+    except BlockingIOError:
+        sock.setblocking(True)
+        return True  # socket is open and reading from it would block
+    except ConnectionResetError:
+        return False  # socket was closed for some other reason
+    except Exception as e:
+        logger.exception("unexpected exception when checking if a socket is closed")
+        return False
 
-def connect():
+    sock.setblocking(True)
+    return True
+
+con: ssl.SSLSocket | None = None
+
+def connect() -> ssl.SSLSocket | None:
     """
     Tries to connect to the server.
     If the connection is established, returns True.
@@ -30,29 +49,41 @@ def connect():
     global con
 
     if con is not None:
-        return True
+        if check_socket_alive(con):
+            return con
+        else:
+            connection_lost()
 
     try:
-        sock = socket.create_connection((config.TCP_HOST, config.TCP_PORT), timeout = 10)
+        sock = socket.create_connection((config.TCP_HOST, config.TCP_PORT), timeout=10)
     except socket.timeout:
         con = None
-        return False
+        return None
 
     # set socket to blocking mode
-    sock.settimeout(None)
+    sock.setblocking(True)
     # enable and configure TCP keepalive
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
-    sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, 15) # idle seconds (15s)
-    sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, 15) # seconds between keepalive (15s)
-    sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, 4) # maximum number of keepalive fails to be acceptable (4 * 15s = 1min)
+    sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, 15)  # idle seconds (15s)
+    sock.setsockopt(
+        socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, 15
+    )  # seconds between keepalive (15s)
+    sock.setsockopt(
+        socket.IPPROTO_TCP, socket.TCP_KEEPCNT, 4
+    )  # maximum number of keepalive fails to be acceptable (4 * 15s = 1min)
 
-    context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH, cafile=SERVER_CERT_PATH)
+    context = ssl.create_default_context(
+        ssl.Purpose.SERVER_AUTH, cafile=SERVER_CERT_PATH
+    )
     context.load_cert_chain(certfile=CLIENT_CERT_PATH, keyfile=CLIENT_KEY_PATH)
-    context.check_hostname = False # checking the hostname on the self signed cert is not necessary
+    context.check_hostname = (
+        False  # checking the hostname on the self signed cert is not necessary
+    )
 
     con = context.wrap_socket(sock)
 
-    return True
+    return con
+
 
 def connection_lost():
     global con
@@ -62,16 +93,15 @@ def connection_lost():
     # TODO: send telegram message?
     # TODO: set indicator light?
 
-def request_open():
+
+def request_open() -> bool:
     """
     Requests the other end to open.
 
     Returns True if the request was successful or False otherwise.
     """
 
-    global con
-
-    if not connect():
+    if (con := connect()) is None:
         return False
 
     try:

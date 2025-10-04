@@ -1,141 +1,212 @@
+from typing import Literal
 from telegram import BotCommand, BotCommandScopeChatAdministrators, Update
-from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
+from telegram.ext import Application, ApplicationBuilder, ContextTypes, CommandHandler
 import logging
 import asyncio
-import threading
 import time
 import telegram_bot.config as config
 import queue
 
-application = None
-rfid_command_queue = None
-
 logger = logging.getLogger("telegram_bot")
+
 
 # Returns `-1` on error or `None` if it should never expire.
 # Otherwise, returns an integer representing the unix time.
-def parse_expiry(text):
+def _parse_expiry(text: str) -> Literal[-1] | float | None:
     if text == "never":
         return None
     else:
         try:
-            return time.mktime(time.strptime(text, '%Y-%m-%d'))
+            return time.mktime(time.strptime(text, "%Y-%m-%d"))
         except ValueError:
             return -1
 
-async def update_authorized(update: Update, context: ContextTypes.DEFAULT_TYPE) -> bool:
-    if update.effective_chat.id != config.CHAT_ID:
-        logger.warn("not authorized: " + update.effective_chat.username)
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="not authorized")
-        return False
 
-    admins = await update.effective_chat.get_administrators()
-    if not update.effective_user.id in [admin.user.id for admin in admins]:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="not authorized, admins only")
-        return False
+class TelegramListener:
+    application: Application
+    rfid_command_queue: queue.SimpleQueue
 
-    return True
+    def __init__(self, rfid_command_queue: queue.SimpleQueue) -> None:
+        self.rfid_command_queue = rfid_command_queue
+        self.application = ApplicationBuilder().token(config.TELEGRAM_TOKEN).build()
 
-async def start_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    await context.bot.send_message(chat_id=update.effective_chat.id, text=str(update.effective_chat.id))
+    async def is_update_authorized(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> bool:
+        if update.effective_chat is None or update.effective_user is None:
+            logger.error(
+                "telegram update is missing important data (effective_chat or effective_user)"
+            )
+            return False
 
-async def create_card_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    if not await update_authorized(update, context):
-        return
-    if len(context.args) < 2:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="usage: /rfid_create <YYYY-MM-DD> <name>")
-        return
+        if update.effective_chat.id != config.CHAT_ID:
+            logger.warning(
+                f"not authorized: {update.effective_chat.id=!r} {update.effective_chat.username=!r}"
+            )
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id, text="not authorized"
+            )
+            return False
 
-    expiry = parse_expiry(context.args[0])
-    if expiry == -1:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="invalid date format, use YYYY-MM-DD")
-        return
+        admins = await update.effective_chat.get_administrators()
+        if not update.effective_user.id in [admin.user.id for admin in admins]:
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id, text="not authorized, admins only"
+            )
+            return False
 
-    rfid_command_queue.put('create')
-    rfid_command_queue.put(expiry)
-    rfid_command_queue.put(" ".join(context.args[1:]))
+        return True
 
-async def cards_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    if not await update_authorized(update, context):
-        return
+    async def start_callback(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> None:
+        assert update.effective_chat is not None
 
-    rfid_command_queue.put('list')
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id, text=str(update.effective_chat.id)
+        )
 
-async def expiry_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    if not await update_authorized(update, context):
-        return
-    if len(context.args) < 2:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="usage: /rfid_expiry <id> <YYYY-MM-DD>")
-        return
+    async def create_card_callback(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> None:
+        if not await self.is_update_authorized(update, context):
+            return
 
-    # parse the card ID, it must be an integer
-    id = None
-    try:
-        id = int(context.args[0], 10)
-    except ValueError:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="invalid id, must be an integer")
-        return
+        assert update.effective_chat is not None and update.effective_user is not None
 
-    expiry = parse_expiry(context.args[1])
-    if expiry == -1:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="invalid date format, use YYYY-MM-DD")
-        return
+        if context.args is None or len(context.args) < 2:
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text="usage: /rfid_create <YYYY-MM-DD> <name>",
+            )
+            return
 
-    rfid_command_queue.put('expiry')
-    rfid_command_queue.put(id)
-    rfid_command_queue.put(expiry)
+        expiry = _parse_expiry(context.args[0])
+        if expiry == -1:
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text="invalid date format, use YYYY-MM-DD",
+            )
+            return
 
-async def revoke_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    if not await update_authorized(update, context):
-        return
-    if len(context.args) < 1:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="usage: /rfid_revoke <id>")
-        return
+        self.rfid_command_queue.put("create")
+        self.rfid_command_queue.put(expiry)
+        self.rfid_command_queue.put(" ".join(context.args[1:]))
 
-    # parse the card ID, it must be an integer
-    id = None
-    try:
-        id = int(context.args[0], 10)
-    except ValueError:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="invalid id, must be an integer")
-        return
+    async def cards_callback(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> None:
+        if not await self.is_update_authorized(update, context):
+            return
+        assert update.effective_chat is not None and update.effective_user is not None
 
-    rfid_command_queue.put('revoke')
-    rfid_command_queue.put(id)
+        self.rfid_command_queue.put("list")
 
-async def toggle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    if not await update_authorized(update, context):
-        return
+    async def expiry_callback(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> None:
+        if not await self.is_update_authorized(update, context):
+            return
+        assert update.effective_chat is not None and update.effective_user is not None
 
-    rfid_command_queue.put('toggle')
+        if context.args is None or len(context.args) < 2:
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text="usage: /rfid_expiry <id> <YYYY-MM-DD>",
+            )
+            return
 
-def listen(_rfid_command_queue: queue.SimpleQueue) -> None:
-    global application, rfid_command_queue
+        # parse the card ID, it must be an integer
+        id = None
+        try:
+            id = int(context.args[0], 10)
+        except ValueError:
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id, text="invalid id, must be an integer"
+            )
+            return
 
-    logger.info("setting up")
-    # keep track of the queue to send back stuff to the main thread
-    rfid_command_queue = _rfid_command_queue
+        expiry = _parse_expiry(context.args[1])
+        if expiry == -1:
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text="invalid date format, use YYYY-MM-DD",
+            )
+            return
 
-    application = ApplicationBuilder().token(config.TELEGRAM_TOKEN).build()
-    application.add_handler(CommandHandler('start', start_callback))
-    application.add_handler(CommandHandler('rfid_cards', cards_callback))
-    application.add_handler(CommandHandler('rfid_create', create_card_callback))
-    application.add_handler(CommandHandler('rfid_expiry', expiry_callback))
-    application.add_handler(CommandHandler('rfid_revoke', revoke_callback))
-    application.add_handler(CommandHandler('rfid_toggle', toggle_callback))
+        self.rfid_command_queue.put("expiry")
+        self.rfid_command_queue.put(id)
+        self.rfid_command_queue.put(expiry)
 
-    asyncio.get_event_loop().run_until_complete(application.bot.set_my_commands(
-        [
-            # /start is not documented because it is not intended to be used generally
-            #BotCommand('start', 'retrieve chat ID'),
-            BotCommand('rfid_cards', 'list RFID cards'),
-            BotCommand('rfid_create', 'create/write new RFID card'),
-            BotCommand('rfid_expiry', 'set or remove expiry date of RFID card'),
-            BotCommand('rfid_revoke', 'revoke and delete an existing RFID card'),
-            BotCommand('rfid_toggle', 'enable/disable RFID reader')
-        ],
-        BotCommandScopeChatAdministrators(config.CHAT_ID)
-    ))
+    async def revoke_callback(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> None:
+        if not await self.is_update_authorized(update, context):
+            return
+        assert update.effective_chat is not None and update.effective_user is not None
 
-    logger.info("starting polling")
-    application.run_polling()
+        if context.args is None or len(context.args) < 1:
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id, text="usage: /rfid_revoke <id>"
+            )
+            return
+
+        # parse the card ID, it must be an integer
+        id = None
+        try:
+            id = int(context.args[0], 10)
+        except ValueError:
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id, text="invalid id, must be an integer"
+            )
+            return
+
+        self.rfid_command_queue.put("revoke")
+        self.rfid_command_queue.put(id)
+
+    async def toggle_callback(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> None:
+        if not await self.is_update_authorized(update, context):
+            return
+        assert update.effective_chat is not None and update.effective_user is not None
+
+        self.rfid_command_queue.put("toggle")
+
+    def listen(self) -> None:
+        logger.info("setting up")
+
+        self.application.add_handler(CommandHandler("start", self.start_callback))
+        self.application.add_handler(CommandHandler("rfid_cards", self.cards_callback))
+        self.application.add_handler(
+            CommandHandler("rfid_create", self.create_card_callback)
+        )
+        self.application.add_handler(
+            CommandHandler("rfid_expiry", self.expiry_callback)
+        )
+        self.application.add_handler(
+            CommandHandler("rfid_revoke", self.revoke_callback)
+        )
+        self.application.add_handler(
+            CommandHandler("rfid_toggle", self.toggle_callback)
+        )
+
+        asyncio.get_event_loop().run_until_complete(
+            self.application.bot.set_my_commands(
+                [
+                    # /start is not documented because it is not intended to be used generally
+                    # BotCommand('start', 'retrieve chat ID'),
+                    BotCommand("rfid_cards", "list RFID cards"),
+                    BotCommand("rfid_create", "create/write new RFID card"),
+                    BotCommand("rfid_expiry", "set or remove expiry date of RFID card"),
+                    BotCommand(
+                        "rfid_revoke", "revoke and delete an existing RFID card"
+                    ),
+                    BotCommand("rfid_toggle", "enable/disable RFID reader"),
+                ],
+                BotCommandScopeChatAdministrators(config.CHAT_ID),
+            )
+        )
+
+        logger.info("starting polling")
+        self.application.run_polling()

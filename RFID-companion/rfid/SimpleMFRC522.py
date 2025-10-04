@@ -16,8 +16,7 @@ def trailerBlock(sector):
     return (sector * 4) + 3
 
 class SimpleMFRC522:
-
-    READER = None
+    READER: MFRC522.MFRC522
 
     def __init__(self):
         self.READER = MFRC522.MFRC522()
@@ -173,7 +172,7 @@ class SimpleMFRC522:
         return uid, readback
 
     # transform array of bytes to an integer
-    def uid_to_num(self, uid):
+    def uid_to_num(self, uid) -> int:
         n = 0
         for byte in uid:
             n = (n << 8) | byte

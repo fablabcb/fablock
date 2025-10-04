@@ -9,201 +9,197 @@ from rfid.SimpleMFRC522 import SimpleMFRC522
 from telegram_bot.send import message
 import tcp_client
 
-cards = None
-reader = None
 
-reader_disabled = False
-# these variables should only be set to something other than 0/None by increment_timeout
-reader_attempts = 0
-reader_timeout = None
-# time at which `reader_attempts` should be reset to zero
-attempts_timeout = None
+class RfidListener:
+    command_queue: queue.SimpleQueue
 
-def listen(command_queue):
-    global cards, reader
+    cards: rfid.cards_sqlite.Cards
+    reader: SimpleMFRC522
 
-    # separate thread needs to have a separate event loop for telegram sending
-    asyncio.set_event_loop(asyncio.new_event_loop())
+    reader_disabled: bool = False
+    # these variables should only be set to something other than 0/None by increment_timeout
+    reader_attempts: int = 0
+    reader_timeout: int | None = None
+    # time at which `reader_attempts` should be reset to zero
+    attempts_timeout: int | None = None
 
-    cards = rfid.cards_sqlite.Cards(config.SQLITE_CARDS_PATH)
-    reader = SimpleMFRC522()
+    def __init__(self, command_queue: queue.SimpleQueue) -> None:
+        self.command_queue = command_queue
+        self.cards = rfid.cards_sqlite.Cards(config.SQLITE_CARDS_PATH)
+        self.reader = SimpleMFRC522()
 
-    # main loop taking care of both the card reader itself
-    # as well as any commands for managing the card database
-    while True:
-        handle_reader()
-        handle_commands(command_queue)
+    def listen(self):
+        # separate thread needs to have a separate event loop for telegram sending
+        asyncio.set_event_loop(asyncio.new_event_loop())
 
-        # check for any expired cards for which no notification has been sent yet
-        text = ''
-        for id, comment in cards.expired_cards():
-            text += f'card {id} has expired: {comment}'
-        if text != '':
-            message(text, silent=True)
+        # main loop taking care of both the card reader itself
+        # as well as any commands for managing the card database
+        while True:
+            self._handle_reader()
+            self._handle_commands()
 
-        time.sleep(.1)
+            # check for any expired cards for which no notification has been sent yet
+            text = ""
+            for id, comment in self.cards.expired_cards():
+                text += f"card {id} has expired: {comment}"
+            if text != "":
+                message(text, silent=True)
 
-def increment_timeout():
-    global reader, reader_attempts, reader_timeout
+            time.sleep(0.1)
 
-    reader_attempts += 1
-    reader_timeout = time.monotonic() + 15 * 2 ** reader_attempts
-    reader.READER.AntennaOff()
+    def _increment_timeout(self):
+        self.reader_attempts += 1
+        self.reader_timeout = time.monotonic() + 15 * 2**self.reader_attempts
+        self.reader.READER.AntennaOff()
 
-def handle_reader():
-    global attempts_timeout, reader_attempts, reader_disabled, reader_timeout
-
-    # first check whether we should not enable the reader
-    # otherwise don't do anything else
-    if reader_disabled:
-        return
-    if not reader_timeout is None:
-        if reader_timeout > time.monotonic():
-            # timeout has not passed yet
+    def _handle_reader(self):
+        # first check whether we should not enable the reader
+        # otherwise don't do anything else
+        if self.reader_disabled:
             return
-        else:
-            # timeout has ended
-            reader.READER.AntennaOn()
-            config.set_ready(True)
-            reader_timeout = None
-            attempts_timeout = time.monotonic() + 15 * 2 ** reader_attempts
-
-    if not attempts_timeout is None and attempts_timeout <= time.monotonic():
-        # attempts reset timeout has ended
-        reader_attempts = 0
-        attempts_timeout = None
-
-    # try reading a card
-    uid, data = reader.read_no_block()
-    if not uid is None:
-        id = reader.uid_to_num(uid)
-        res, comment = cards.check_card(id, data)
-
-        config.set_ready(False)
-
-        if res == cards.E_OK:
-            message("read card: " + comment)
-            reader_attempts = 0
-            if tcp_client.request_open():
+        if not self.reader_timeout is None:
+            if self.reader_timeout > time.monotonic():
+                # timeout has not passed yet
+                return
+            else:
+                # timeout has ended
+                self.reader.READER.AntennaOn()
                 config.set_ready(True)
-                config.blink_ready()
-        elif res == cards.E_INVALID:
-            message("read card with unexpected data " + comment)
-        elif res == cards.E_UNKNOWN:
-            message("read invalid card")
-        elif res == cards.E_EXPIRED:
-            message("read expired card " + comment)
+                self.reader_timeout = None
+                self.attempts_timeout = time.monotonic() + 15 * 2**self.reader_attempts
 
-        increment_timeout()
+        if (
+            not self.attempts_timeout is None
+            and self.attempts_timeout <= time.monotonic()
+        ):
+            # attempts reset timeout has ended
+            self.reader_attempts = 0
+            self.attempts_timeout = None
 
-def handle_commands(command_queue):
-    command = None
-    try:
-        # check for external commands
-        command = command_queue.get_nowait()
-    except queue.Empty:
-        return
+        # try reading a card
+        uid, data = self.reader.read_no_block()
+        if not uid is None:
+            id = self.reader.uid_to_num(uid)
+            res, comment = self.cards.check_card(id, data)
+            comment = comment or ""
 
-    if command == 'create':
-        expires, comment = command_queue.get(), command_queue.get()
-        config.blink_ready()
-        command_create(expires, comment)
-        # after (trying) creating a card, disable the reader
-        increment_timeout()
-        config.set_ready(False)
-    elif command == 'list':
-        command_list()
-    elif command == 'expiry':
-        id, expires = command_queue.get(), command_queue.get()
-        command_expiry(id, expires)
-    elif command == 'revoke':
-        id = command_queue.get()
-        command_revoke(id)
-    elif command == 'toggle':
-        command_toggle()
+            config.set_ready(False)
 
-def command_create(expires, comment):
-    global cards, reader
+            if res == rfid.cards_sqlite.CardStatus.OK:
+                message("read card: " + comment)
+                self.reader_attempts = 0
+                if tcp_client.request_open():
+                    config.set_ready(True)
+                    config.blink_ready()
+            elif res == rfid.cards_sqlite.CardStatus.INVALID:
+                message("read card with unexpected data " + comment)
+            elif res == rfid.cards_sqlite.CardStatus.UNKNOWN:
+                message("read invalid card")
+            elif res == rfid.cards_sqlite.CardStatus.EXPIRED:
+                message("read expired card " + comment)
 
-    message('present card to reader for creating', silent=True)
+            self._increment_timeout()
 
-    timeout = time.monotonic() + 60 # now + 60s
-    uid = None
-    while uid is None and timeout > time.monotonic():
-        uid = reader.read_id_no_block()
+    def _handle_commands(self):
+        command = None
+        try:
+            # check for external commands
+            command = self.command_queue.get_nowait()
+        except queue.Empty:
+            return
 
-    if uid is None:
-        # must have run into the timeout
-        message('no card read, aborting...', silent=True)
-        # wait before trying to read again, maybe they just got to the reader
-        # and this should not count as an invalid read
-        time.sleep(5)
-        return
+        if command == "create":
+            expires, comment = self.command_queue.get(), self.command_queue.get()
+            config.blink_ready()
+            self._command_create(expires, comment)
+            # after (trying) creating a card, disable the reader
+            self._increment_timeout()
+            config.set_ready(False)
+        elif command == "list":
+            self._command_list()
+        elif command == "expiry":
+            id, expires = self.command_queue.get(), self.command_queue.get()
+            self._command_expiry(id, expires)
+        elif command == "revoke":
+            id = self.command_queue.get()
+            self._command_revoke(id)
+        elif command == "toggle":
+            self._command_toggle()
 
-    id = reader.read_id()
-    data = cards.create_card(id, expires, comment)
-    if data is None:
-        message('card not created: already exists', silent=True)
-        return
+    def _command_create(self, expires: float | None, comment: str | None):
+        message("present card to reader for creating", silent=True)
 
-    written_id, _ = reader.write(data)
-    if id == written_id:
-        expires_txt = 'never'
-        if expires is not None:
-            expires_txt = time.strftime('%Y-%m-%d %H:%M UTC', time.gmtime(expires))
-        message(f'card {id} created: {comment}\nexpires {expires_txt}')
-    else:
-        cards.revoke_card(id)
-        message('card not created: error writing', silent=True)
+        timeout = time.monotonic() + 60  # now + 60s
+        uid = None
+        while uid is None and timeout > time.monotonic():
+            uid = self.reader.read_id_no_block()
 
-def command_list():
-    global cards
+        if uid is None:
+            # must have run into the timeout
+            message("no card read, aborting...", silent=True)
+            # wait before trying to read again, maybe they just got to the reader
+            # and this should not count as an invalid read
+            time.sleep(5)
+            return
 
-    cards_list = cards.cards()
-    text = f'{len(cards_list)} card(s)\n'
-    for id, expired, expiry, comment in cards_list:
-        text += f'{id}: {comment} ('
-        if expired:
-            text += f'has expired {expiry}'
+        id = self.reader.read_id()
+        data = self.cards.create_card(id, expires, comment)
+        if data is None:
+            message("card not created: already exists", silent=True)
+            return
+
+        written_id, _ = self.reader.write(data)
+        if id == written_id:
+            expires_txt = "never"
+            if expires is not None:
+                expires_txt = time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime(expires))
+            message(f"card {id} created: {comment}\nexpires {expires_txt}")
         else:
-            text += f'will expire {expiry}'
-        text += ')\n'
+            self.cards.revoke_card(id)
+            message("card not created: error writing", silent=True)
 
-    # use `strip` to remove final newline
-    message(text.strip(), silent=True)
+    def _command_list(self):
+        cards_list = self.cards.cards()
+        text = f"{len(cards_list)} card(s)\n"
+        for id, expired, expiry, comment in cards_list:
+            text += f"{id}: {comment} ("
+            if expired:
+                text += f"has expired {expiry}"
+            else:
+                text += f"will expire {expiry}"
+            text += ")\n"
 
-def command_expiry(id, expires):
-    global cards
-    if cards.set_card_expiry(id, expires):
-        expires_txt = 'never'
-        if expires is not None:
-            expires_txt = time.strftime('%Y-%m-%d %H:%M UTC', time.gmtime(expires))
-        comment = cards.get_card_comment(id)
-        message(f'card expiry changed: {comment}\nnew expiry: {expires_txt}')
-    else:
-        message('unknown card', silent=True)
+        # use `strip` to remove final newline
+        message(text.strip(), silent=True)
 
-def command_revoke(id):
-    global cards
-    comment = cards.get_card_comment(id)
-    if cards.revoke_card(id):
-        message(f'revoked card: {comment}')
-    else:
-        message('unknown card', silent=True)
+    def _command_expiry(self, id: int, expires: float | None):
+        if self.cards.set_card_expiry(id, expires):
+            expires_txt = "never"
+            if expires is not None:
+                expires_txt = time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime(expires))
+            comment = self.cards.get_card_comment(id)
+            message(f"card expiry changed: {comment}\nnew expiry: {expires_txt}")
+        else:
+            message("unknown card", silent=True)
 
-def command_toggle():
-    global reader_disabled
+    def _command_revoke(self, id):
+        comment = self.cards.get_card_comment(id)
+        if self.cards.revoke_card(id):
+            message(f"revoked card: {comment}")
+        else:
+            message("unknown card", silent=True)
 
-    reader_disabled = not reader_disabled
+    def _command_toggle(self):
+        self.reader_disabled = not self.reader_disabled
 
-    if reader_disabled:
-        reader.READER.AntennaOff()
-        config.set_ready(False)
-        message('reader disabled')
-    else:
-        reader.READER.AntennaOn()
-        config.set_ready(True)
-        reader_attempts = 0
-        reader_timeout = None
-        attempts_timeout = None
-        message('reader enabled and timeouts reset')
+        if self.reader_disabled:
+            self.reader.READER.AntennaOff()
+            config.set_ready(False)
+            message("reader disabled")
+        else:
+            self.reader.READER.AntennaOn()
+            config.set_ready(True)
+            self.reader_attempts = 0
+            self.reader_timeout = None
+            self.attempts_timeout = None
+            message("reader enabled and timeouts reset")
