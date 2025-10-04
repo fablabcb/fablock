@@ -7,9 +7,12 @@ logger = logging.getLogger("tcp")
 
 # TCP level keepalive is used for keeping the connection up.
 #
-# All packets are one byte in length.
-# The client can request opening by sending a zero byte.
-TX_OPEN = 0x00
+# The client can request one of these actions.
+TX_OPEN = bytes([0x00])
+TX_BROADCAST = bytes([0x01])
+# Followed by a UTF-8 encoded string.
+# The end of the string is delimited by a byte that cannot occur in valid UTF-8.
+TX_STRING_DELIM = bytes([0xFF])
 # The server will respond with a zero byte if this operation was successful.
 RX_ACK = 0x00
 # Otherwise the server will respond with a 0x01 byte.
@@ -18,6 +21,7 @@ RX_NAK = 0x01
 CLIENT_CERT_PATH = "/home/pi/client.crt"
 CLIENT_KEY_PATH = "/home/pi/client.key"
 SERVER_CERT_PATH = "/home/pi/server.crt"
+
 
 def check_socket_alive(sock: ssl.SSLSocket) -> bool:
     try:
@@ -38,7 +42,9 @@ def check_socket_alive(sock: ssl.SSLSocket) -> bool:
     sock.setblocking(True)
     return True
 
+
 con: ssl.SSLSocket | None = None
+
 
 def connect() -> ssl.SSLSocket | None:
     """
@@ -94,7 +100,7 @@ def connection_lost():
     # TODO: set indicator light?
 
 
-def request_open() -> bool:
+def request_open(name: str) -> bool:
     """
     Requests the other end to open.
 
@@ -105,7 +111,8 @@ def request_open() -> bool:
         return False
 
     try:
-        con.sendall(bytes([TX_OPEN]))
+        name_bin = bytes(name, encoding="utf-8")
+        con.sendall(TX_OPEN + name_bin + TX_STRING_DELIM)
         data = con.recv(1)
     except:
         connection_lost()

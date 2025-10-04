@@ -81,14 +81,14 @@ class RfidListener:
         if not uid is None:
             id = self.reader.uid_to_num(uid)
             res, comment = self.cards.check_card(id, data)
-            comment = comment or ""
+            comment = comment or f"RFID card {id}"
 
             config.set_ready(False)
 
             if res == rfid.cards_sqlite.CardStatus.OK:
                 message("read card: " + comment)
                 self.reader_attempts = 0
-                if tcp_client.request_open():
+                if tcp_client.request_open(comment):
                     config.set_ready(True)
                     config.blink_ready()
             elif res == rfid.cards_sqlite.CardStatus.INVALID:

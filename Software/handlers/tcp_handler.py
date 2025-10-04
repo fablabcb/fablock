@@ -10,9 +10,13 @@ logger = logging.getLogger("tcp")
 
 # TCP level keepalive is used for keeping the connection up.
 #
-# All packets are one byte in length.
-# The client can request opening by sending a zero byte.
+# The client can request one of these actions.
 RX_OPEN = 0x00
+RX_BROADCAST = 0x01
+# Followed by a UTF-8 encoded string.
+# The end of the string is delimited by a byte that cannot occur in valid UTF-8.
+RX_STRING_DELIM = bytes([0xFF])
+
 # The server will respond with a zero byte if this operation was successful.
 TX_ACK = 0x00
 # Otherwise the server will respond with a 0x01 byte.
@@ -73,13 +77,24 @@ class TcpHandler(Handler):
                     assert len(data) == 1
 
                     if data[0] == RX_OPEN:
+                        name = await client_reader.readuntil(RX_STRING_DELIM)
+                        name = name.removesuffix(RX_STRING_DELIM).decode(
+                            "utf-8", errors="replace"
+                        )
                         logger.info("opening requested")
                         # TODO transmit and use actual name
-                        if await manager.request_open("RFID"):
+                        if await manager.request_open(name):
                             client_writer.write(bytes([TX_ACK]))
                         else:
                             client_writer.write(bytes([TX_NAK]))
                         await client_writer.drain()
+                    elif data[0] == RX_BROADCAST:
+                        message = await client_reader.readuntil(RX_STRING_DELIM)
+                        message = message.removesuffix(RX_STRING_DELIM).decode(
+                            "utf-8", errors="replace"
+                        )
+                        logger.info("broadcast message requested")
+                        await manager.broadcast(message)
                     else:
                         logger.warning(
                             "closing connection due to unrecognized message: ",

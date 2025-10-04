@@ -10,9 +10,7 @@ program on the same RPi. In our case however, the glass of our windows was too
 thick for the reader to penetrate it, so we had to separate the RFID reader.
 
 This bot can manage RFID tags through telegram commands and when a known and
-valid tag is read, it will send the `/open` command to trigger the other bot.
-It will also send an informational message of which card was read so it is
-possible to audit who had access.
+valid tag is read, it will communicate with the other bot over a TLS connection.
 
 This implementation is written for a reader with the MFRC522 chip which is able
 to read MIFARE 1K cards with Crypto1 implementation.
