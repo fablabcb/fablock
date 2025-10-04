@@ -37,7 +37,7 @@ class TcpHandler(Handler):
 
         def setup_connection(client_writer: asyncio.StreamWriter):
             # enable and configure TCP keepalive
-            con: ssl.SSLSocket = client_writer.get_extra_info("ssl_object")
+            con: ssl.SSLSocket = client_writer.get_extra_info("socket")
             con.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
             con.setsockopt(
                 socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, 15
@@ -91,9 +91,7 @@ class TcpHandler(Handler):
 
         await asyncio.start_server(
             client_handler,
-            config.NETWORKING_HOST,
-            config.NETWORKING_PORT,
-            family=socket.AF_INET6,
+            port=config.NETWORKING_PORT,
             limit=1,
             ssl=context,
         )

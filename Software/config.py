@@ -6,7 +6,6 @@ logging.getLogger("httpx").setLevel(logging.WARNING) # do not log every telegram
 # set debug level for states in states.py
 
 NETWORKING_ENABLED = True
-NETWORKING_HOST = "::"
 NETWORKING_PORT = 55555
 TLS_SERVER_CERT_PATH = "/home/pi/server.crt"
 TLS_SERVER_KEY_PATH = "/home/pi/server.key"
