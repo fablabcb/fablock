@@ -1,10 +1,9 @@
 import asyncio
-from collections.abc import Awaitable, Callable
 import config
 import logging
 import socket
 import ssl
-from . import Handler
+from . import Handler, Manager
 
 
 logger = logging.getLogger("tcp")
@@ -21,7 +20,7 @@ TX_NAK = 0x01
 
 
 class TcpHandler(Handler):
-    async def listen(self, request_open: Callable[[str], Awaitable[bool]]):
+    async def listen(self, manager: Manager):
         context = ssl.create_default_context(
             ssl.Purpose.CLIENT_AUTH, cafile=config.TLS_CLIENT_CERT_PATH
         )
@@ -76,7 +75,7 @@ class TcpHandler(Handler):
                     if data[0] == RX_OPEN:
                         logger.info("opening requested")
                         # TODO transmit and use actual name
-                        if await request_open("RFID"):
+                        if await manager.request_open("RFID"):
                             client_writer.write(bytes([TX_ACK]))
                         else:
                             client_writer.write(bytes([TX_NAK]))

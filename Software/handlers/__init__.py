@@ -1,8 +1,55 @@
-from collections.abc import Awaitable, Callable
+import asyncio
+import logging
+import states
+
+
+class Manager:
+    handlers: list["Handler"]
+
+    def __init__(self):
+        self.handlers = []
+
+    async def request_open(self, name: str) -> bool:
+        """
+        Request opening by the given authorized person.
+
+        Returns whether the request was successful.
+        """
+        try:
+            await asyncio.gather(
+                *[
+                    handler.send(f"opening for {name}", critical=True)
+                    for handler in self.handlers
+                ],
+                return_exceptions=True,
+            )
+        except RuntimeError:
+            logging.error("unlocking failed because message could not be sent")
+            return False  # don't unlock if this message could not be sent
+
+        return states.unlock()
+
+    async def broadcast(self, message: str):
+        """
+        Send a broadcast message to all channels.
+
+        The message will be send using `Handler.send` on all available handlers.
+        The message will be sent as a non-critical message.
+        """
+        await asyncio.gather(
+            *[handler.send(message) for handler in self.handlers],
+            return_exceptions=False,
+        )
+
+    async def run(self):
+        await asyncio.gather(
+            *[handler.listen(self) for handler in self.handlers],
+            return_exceptions=True,
+        )
 
 
 class Handler:
-    async def broadcast(self, message: str, critical: bool = False):
+    async def send(self, message: str, critical: bool = False):
         """
         Send a broadcast message to this channel.
 
@@ -13,7 +60,7 @@ class Handler:
         """
         pass
 
-    async def listen(self, request_open: Callable[[str], Awaitable[bool]]):
+    async def listen(self, manager: Manager):
         """
         Runs the event loop for this channel.
 

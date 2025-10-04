@@ -2,46 +2,25 @@ import asyncio
 import config
 import hardware
 import handlers.telegram_handler, handlers.tcp_handler
-import logging
 import states
+
 
 async def main():
     hardware.setup()
 
-    ingress_handlers: list[handlers.Handler] = [
-        handlers.telegram_handler.TelegramHandler()
-    ]
-
-    async def request_open(name: str) -> bool:
-        try:
-            await asyncio.gather(
-                *[
-                    handler.broadcast(f"opening for {name}", critical=True)
-                    for handler in ingress_handlers
-                ],
-                return_exceptions=True,
-            )
-        except RuntimeError:
-            logging.error("unlocking failed because message could not be sent")
-            return False  # don't unlock if this message could not be sent
-
-        return states.unlock()
+    manager = handlers.Manager()
 
     async def hardware_handler():
-        async def broadcast(message: str):
-            await asyncio.gather(
-                *[handler.broadcast(message) for handler in ingress_handlers],
-                return_exceptions=False,
-            )
-
-        state_machine = states.StateMachine(broadcast)
+        state_machine = states.StateMachine(manager.broadcast)
         await state_machine.run()
 
+    manager.handlers.append(handlers.telegram_handler.TelegramHandler())
+
     if config.NETWORKING_ENABLED:
-        ingress_handlers.append(handlers.tcp_handler.TcpHandler())
+        manager.handlers.append(handlers.tcp_handler.TcpHandler())
 
     await asyncio.gather(
-        *[handler.listen(request_open) for handler in ingress_handlers],
+        manager.run(),
         hardware_handler(),
         return_exceptions=True,
     )
