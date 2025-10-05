@@ -1,23 +1,24 @@
 import asyncio
 import config
 import hardware
-import handlers.telegram_handler, handlers.tcp_handler
+from handlers import Manager, discourse_handler, telegram_handler, tcp_handler
 import states
 
 
 async def main():
     hardware.setup()
 
-    manager = handlers.Manager()
+    manager = Manager()
 
     async def hardware_handler():
         state_machine = states.StateMachine(manager.broadcast)
         await state_machine.run()
 
-    manager.handlers.append(handlers.telegram_handler.TelegramHandler())
+    manager.handlers.append(telegram_handler.TelegramHandler())
+    manager.handlers.append(discourse_handler.DiscourseHandler())
 
     if config.NETWORKING_ENABLED:
-        manager.handlers.append(handlers.tcp_handler.TcpHandler())
+        manager.handlers.append(tcp_handler.TcpHandler())
 
     await asyncio.gather(
         manager.run(),
