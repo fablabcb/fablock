@@ -58,54 +58,56 @@ class TcpHandler(Handler):
         async def client_handler(
             client_reader: asyncio.StreamReader, client_writer: asyncio.StreamWriter
         ):
-            if lock.locked():
-                # only one concurrent connection is allowed
-                return
+            try:
+                if lock.locked():
+                    # only one concurrent connection is allowed
+                    return
 
-            async with lock:
-                setup_connection(client_writer)
+                async with lock:
+                    setup_connection(client_writer)
 
-                while True:
-                    try:
-                        # receive a packet (1 byte)
-                        data = await client_reader.readexactly(1)
-                    except Exception as e:
-                        # some error during receiving, might have been a timeout
-                        logger.error("error while receiving", exc_info=e)
-                        break
+                    while True:
+                        try:
+                            # receive a packet (1 byte)
+                            data = await client_reader.readexactly(1)
+                        except Exception as e:
+                            # some error during receiving, might have been a timeout
+                            logger.error("error while receiving", exc_info=e)
+                            break
 
-                    assert len(data) == 1
+                        assert len(data) == 1
 
-                    if data[0] == RX_OPEN:
-                        name = await client_reader.readuntil(RX_STRING_DELIM)
-                        name = name.removesuffix(RX_STRING_DELIM).decode(
-                            "utf-8", errors="replace"
-                        )
-                        logger.info("opening requested")
-                        # TODO transmit and use actual name
-                        if await manager.request_open(name):
-                            client_writer.write(bytes([TX_ACK]))
+                        if data[0] == RX_OPEN:
+                            name = await client_reader.readuntil(RX_STRING_DELIM)
+                            name = name.removesuffix(RX_STRING_DELIM).decode(
+                                "utf-8", errors="replace"
+                            )
+                            logger.info("opening requested")
+                            if await manager.request_open(name):
+                                client_writer.write(bytes([TX_ACK]))
+                            else:
+                                client_writer.write(bytes([TX_NAK]))
+                            await client_writer.drain()
+                        elif data[0] == RX_BROADCAST:
+                            message = await client_reader.readuntil(RX_STRING_DELIM)
+                            message = message.removesuffix(RX_STRING_DELIM).decode(
+                                "utf-8", errors="replace"
+                            )
+                            logger.info("broadcast message requested")
+                            await manager.broadcast(message)
                         else:
-                            client_writer.write(bytes([TX_NAK]))
-                        await client_writer.drain()
-                    elif data[0] == RX_BROADCAST:
-                        message = await client_reader.readuntil(RX_STRING_DELIM)
-                        message = message.removesuffix(RX_STRING_DELIM).decode(
-                            "utf-8", errors="replace"
-                        )
-                        logger.info("broadcast message requested")
-                        await manager.broadcast(message)
-                    else:
-                        logger.warning(
-                            "closing connection due to unrecognized message: ",
-                            repr(data),
-                        )
-                        break
-                logger.info("connection lost")
+                            logger.warning(
+                                "closing connection due to unrecognized message: ",
+                                repr(data),
+                            )
+                            break
+                    logger.info("connection lost")
+            except Exception as e:
+                # it seems that asyncio server just discards the error
+                logger.error("client handler failed", exc_info=e)
 
         await asyncio.start_server(
             client_handler,
             port=config.NETWORKING_PORT,
-            limit=1,
             ssl=context,
         )
