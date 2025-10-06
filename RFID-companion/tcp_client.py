@@ -87,13 +87,21 @@ def request_open(name: str) -> bool:
     if (con := connect()) is None:
         return False
 
+    name_bin = bytes(name, encoding="utf-8")
     try:
-        name_bin = bytes(name, encoding="utf-8")
         con.sendall(TX_OPEN + name_bin + TX_STRING_DELIM)
         data = con.recv(1)
     except:
+        # retry
         connection_lost()
-        return False
+        if (con := connect()) is None:
+            return False
+        else:
+            try:
+                con.sendall(TX_OPEN + name_bin + TX_STRING_DELIM)
+                data = con.recv(1)
+            except:
+                return False
 
     if len(data) == 0:
         connection_lost()
