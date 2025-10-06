@@ -77,20 +77,18 @@ def connection_lost():
     # TODO: set indicator light?
 
 
-def request_open(name: str) -> bool:
+def socket_send(data: bytes) -> bool:
     """
-    Requests the other end to open.
-
-    Returns True if the request was successful or False otherwise.
+    Tries to send the given data over the TLS connection.
+    Implements a retry, e.g. in case it is discovered that the connection was already dead.
     """
 
     if (con := connect()) is None:
         return False
 
-    name_bin = bytes(name, encoding="utf-8")
     try:
-        con.sendall(TX_OPEN + name_bin + TX_STRING_DELIM)
-        data = con.recv(1)
+        con.sendall(data)
+        return True
     except:
         # retry
         connection_lost()
@@ -98,10 +96,26 @@ def request_open(name: str) -> bool:
             return False
         else:
             try:
-                con.sendall(TX_OPEN + name_bin + TX_STRING_DELIM)
-                data = con.recv(1)
+                con.sendall(data)
+                return True
             except:
                 return False
+
+
+def request_open(name: str) -> bool:
+    """
+    Requests the other end to open.
+
+    Returns True if the request was successful or False otherwise.
+    """
+
+    name_bin = bytes(name, encoding="utf-8")
+    if not socket_send(TX_OPEN + name_bin + TX_STRING_DELIM):
+        return False
+
+    if (con := connect()) is None:
+        return False
+    data = con.recv(1)
 
     if len(data) == 0:
         connection_lost()
@@ -114,3 +128,7 @@ def request_open(name: str) -> bool:
     else:
         logger.warning("unrecognized answer: " + repr(data))
         return False
+
+def broadcast(message: str):
+    message_bin = bytes(message, encoding="utf-8")
+    socket_send(TX_BROADCAST + message_bin + TX_STRING_DELIM)

@@ -6,7 +6,6 @@ import time
 import config
 import rfid.cards_sqlite
 from rfid.SimpleMFRC522 import SimpleMFRC522
-from telegram_bot.send import message
 import tcp_client
 
 
@@ -44,7 +43,7 @@ class RfidListener:
             for id, comment in self.cards.expired_cards():
                 text += f"card {id} has expired: {comment}"
             if text != "":
-                message(text, silent=True)
+                tcp_client.broadcast(text)
 
             time.sleep(0.1)
 
@@ -87,17 +86,16 @@ class RfidListener:
             config.set_ready(False)
 
             if res == rfid.cards_sqlite.CardStatus.OK:
-                message("read card: " + comment)
                 self.reader_attempts = 0
                 if tcp_client.request_open(comment):
                     config.set_ready(True)
                     config.blink_ready()
             elif res == rfid.cards_sqlite.CardStatus.INVALID:
-                message("read card with unexpected data " + comment)
+                tcp_client.broadcast("RFID read card with unexpected data " + comment)
             elif res == rfid.cards_sqlite.CardStatus.UNKNOWN:
-                message("read invalid card")
+                tcp_client.broadcast("RFID read invalid card")
             elif res == rfid.cards_sqlite.CardStatus.EXPIRED:
-                message("read expired card " + comment)
+                tcp_client.broadcast("RFID read expired card " + comment)
 
             self._increment_timeout()
 
@@ -128,7 +126,7 @@ class RfidListener:
             self._command_toggle()
 
     def _command_create(self, expires: float | None, comment: str | None):
-        message("present card to reader for creating", silent=True)
+        tcp_client.broadcast("present card to RFID reader for creating")
 
         timeout = time.monotonic() + 60  # now + 60s
         uid = None
@@ -137,7 +135,7 @@ class RfidListener:
 
         if uid is None:
             # must have run into the timeout
-            message("no card read, aborting...", silent=True)
+            tcp_client.broadcast("no card read, aborting...")
             # wait before trying to read again, maybe they just got to the reader
             # and this should not count as an invalid read
             time.sleep(5)
@@ -146,7 +144,7 @@ class RfidListener:
         id = self.reader.read_id()
         data = self.cards.create_card(id, expires, comment)
         if data is None:
-            message("card not created: already exists", silent=True)
+            tcp_client.broadcast("card not created: already exists")
             return
 
         written_id, _ = self.reader.write(data)
@@ -154,14 +152,14 @@ class RfidListener:
             expires_txt = "never"
             if expires is not None:
                 expires_txt = time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime(expires))
-            message(f"card {id} created: {comment}\nexpires {expires_txt}")
+            tcp_client.broadcast(f"card {id} created: {comment}\nexpires {expires_txt}")
         else:
             self.cards.revoke_card(id)
-            message("card not created: error writing", silent=True)
+            tcp_client.broadcast("card not created: error writing")
 
     def _command_list(self):
         cards_list = self.cards.cards()
-        text = f"{len(cards_list)} card(s)\n"
+        text = f"{len(cards_list)} RFID card(s)\n"
         for id, expired, expiry, comment in cards_list:
             text += f"{id}: {comment} ("
             if expired:
@@ -171,7 +169,7 @@ class RfidListener:
             text += ")\n"
 
         # use `strip` to remove final newline
-        message(text.strip(), silent=True)
+        tcp_client.broadcast(text.strip())
 
     def _command_expiry(self, id: int, expires: float | None):
         if self.cards.set_card_expiry(id, expires):
@@ -179,16 +177,16 @@ class RfidListener:
             if expires is not None:
                 expires_txt = time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime(expires))
             comment = self.cards.get_card_comment(id)
-            message(f"card expiry changed: {comment}\nnew expiry: {expires_txt}")
+            tcp_client.broadcast(f"card expiry changed: {comment}\nnew expiry: {expires_txt}")
         else:
-            message("unknown card", silent=True)
+            tcp_client.broadcast("unknown card")
 
     def _command_revoke(self, id):
         comment = self.cards.get_card_comment(id)
         if self.cards.revoke_card(id):
-            message(f"revoked card: {comment}")
+            tcp_client.broadcast(f"revoked card: {comment}")
         else:
-            message("unknown card", silent=True)
+            tcp_client.broadcast("unknown card")
 
     def _command_toggle(self):
         self.reader_disabled = not self.reader_disabled
@@ -196,11 +194,11 @@ class RfidListener:
         if self.reader_disabled:
             self.reader.READER.AntennaOff()
             config.set_ready(False)
-            message("reader disabled")
+            tcp_client.broadcast("reader disabled")
         else:
             self.reader.READER.AntennaOn()
             config.set_ready(True)
             self.reader_attempts = 0
             self.reader_timeout = None
             self.attempts_timeout = None
-            message("reader enabled and timeouts reset")
+            tcp_client.broadcast("reader enabled and timeouts reset")
