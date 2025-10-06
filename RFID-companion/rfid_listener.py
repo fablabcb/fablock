@@ -25,12 +25,13 @@ class RfidListener:
 
     def __init__(self, command_queue: queue.SimpleQueue) -> None:
         self.command_queue = command_queue
-        self.cards = rfid.cards_sqlite.Cards(config.SQLITE_CARDS_PATH)
         self.reader = SimpleMFRC522()
 
     def listen(self):
         # separate thread needs to have a separate event loop for telegram sending
         asyncio.set_event_loop(asyncio.new_event_loop())
+        # only create cards here because sqlite3 is not happy being used across different threads
+        self.cards = rfid.cards_sqlite.Cards(config.SQLITE_CARDS_PATH)
 
         # main loop taking care of both the card reader itself
         # as well as any commands for managing the card database
