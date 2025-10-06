@@ -23,26 +23,6 @@ CLIENT_KEY_PATH = "/home/pi/client.key"
 SERVER_CERT_PATH = "/home/pi/server.crt"
 
 
-def check_socket_alive(sock: ssl.SSLSocket) -> bool:
-    try:
-        # this will try to read bytes without blocking and also without removing them from buffer (peek only)
-        sock.setblocking(False)
-        data = sock.recv(1, socket.MSG_PEEK)
-        if len(data) == 0:
-            return False
-    except BlockingIOError:
-        sock.setblocking(True)
-        return True  # socket is open and reading from it would block
-    except ConnectionResetError:
-        return False  # socket was closed for some other reason
-    except Exception as e:
-        logger.exception("unexpected exception when checking if a socket is closed")
-        return False
-
-    sock.setblocking(True)
-    return True
-
-
 con: ssl.SSLSocket | None = None
 
 
@@ -55,10 +35,7 @@ def connect() -> ssl.SSLSocket | None:
     global con
 
     if con is not None:
-        if check_socket_alive(con):
-            return con
-        else:
-            connection_lost()
+        return con
 
     try:
         sock = socket.create_connection((config.TCP_HOST, config.TCP_PORT), timeout=10)
