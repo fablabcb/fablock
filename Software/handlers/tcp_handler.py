@@ -78,17 +78,19 @@ class TcpHandler(Handler):
                         assert len(data) == 1
 
                         if data[0] == RX_OPEN:
+                            logger.info("got OPEN command")
                             name = await client_reader.readuntil(RX_STRING_DELIM)
                             name = name.removesuffix(RX_STRING_DELIM).decode(
                                 "utf-8", errors="replace"
                             )
-                            logger.info("opening requested")
+                            logger.info(f"opening requested for {name!r}")
                             if await manager.request_open(name):
                                 client_writer.write(bytes([TX_ACK]))
                             else:
                                 client_writer.write(bytes([TX_NAK]))
                             await client_writer.drain()
                         elif data[0] == RX_BROADCAST:
+                            logger.info("got BROADCAST command")
                             message = await client_reader.readuntil(RX_STRING_DELIM)
                             message = message.removesuffix(RX_STRING_DELIM).decode(
                                 "utf-8", errors="replace"
