@@ -48,11 +48,10 @@ class DiscourseHandler(Handler):
         last_message_id = -1
 
         client_id = uuid.uuid4().hex
-        message_bus_channel = f"/chat/{secret_config.DISCOURSE_CHAT_ID}/new-message"
+        message_bus_channel = f"/chat/{secret_config.DISCOURSE_CHAT_ID}/new-messages"
 
         while True:
             try:
-                # discourse uses long polling by default
                 resp: httpx.Response = await self.client.post(
                     f"{secret_config.DISCOURSE_BASE_URL}/message-bus/{client_id}/poll",
                     headers={
@@ -65,6 +64,8 @@ class DiscourseHandler(Handler):
                         # which channels to subscribe to
                         message_bus_channel: last_message_id,
                     },
+                    # discourse uses long polling by default
+                    timeout=60.0,
                 )
                 if resp.status_code != 200:
                     logger.warning(
@@ -78,7 +79,7 @@ class DiscourseHandler(Handler):
                 await asyncio.sleep(5)
                 continue
 
-            logger.debug("got message bus response: {data!r}")
+            logger.debug(f"got message bus response: {data!r}")
 
             for message in data:
                 if message["channel"] == "/__status":
