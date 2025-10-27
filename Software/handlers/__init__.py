@@ -9,7 +9,7 @@ class Manager:
     def __init__(self):
         self.handlers = []
 
-    async def request_open(self, name: str) -> bool:
+    async def request_open(self, name: str, handler_name: str) -> bool:
         """
         Request opening by the given authorized person.
 
@@ -18,7 +18,7 @@ class Manager:
         try:
             await asyncio.gather(
                 *[
-                    handler.send(f"opening for {name}", critical=True)
+                    handler.send(f"opening for {name} (via {handler_name})", critical=True)
                     for handler in self.handlers
                 ],
                 return_exceptions=True,

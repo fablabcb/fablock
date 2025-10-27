@@ -108,5 +108,5 @@ class DiscourseHandler(Handler):
                     username = message["data"]["message"]["user"]["username"]
                     logger.info(f"got open request from user @{username}")
 
-                    if not await manager.request_open(username):
+                    if not await manager.request_open(username, "Discourse"):
                         await self.send("already busy")

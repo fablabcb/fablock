@@ -68,7 +68,7 @@ class TelegramHandler(Handler):
 
             if update.effective_chat.id == secret_config.TELEGRAM_CHAT_ID:
                 username = update.message.from_user.full_name
-                if not await manager.request_open(username):
+                if not await manager.request_open(username, "Telegram"):
                     await context.bot.send_message(
                         chat_id=update.effective_chat.id, text="already busy"
                     )

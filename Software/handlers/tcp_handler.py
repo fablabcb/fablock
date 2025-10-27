@@ -84,7 +84,7 @@ class TcpHandler(Handler):
                                 "utf-8", errors="replace"
                             )
                             logger.info(f"opening requested for {name!r}")
-                            if await manager.request_open(name):
+                            if await manager.request_open(name, "RFID"):
                                 client_writer.write(bytes([TX_ACK]))
                             else:
                                 client_writer.write(bytes([TX_NAK]))
