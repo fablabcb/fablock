@@ -87,7 +87,7 @@ class DiscourseHandler(Handler):
                 elif message["channel"] == message_bus_channel:
                     last_message_id = message["message_id"]
 
-                    content = message["data"]["message"]["message"]
+                    content = message["data"]["message"]["excerpt"]
                     logger.debug(f"got new message: {content!r}")
 
                     # check that message is not outdated
