@@ -75,7 +75,6 @@ class TelegramHandler(Handler):
             else:
                 logger.warning("not authorized: " + update.effective_chat.username)
                 try:
-                    # not using message_async because this should not be sent to the configured group
                     await context.bot.send_message(
                         chat_id=update.effective_chat.id, text="not authorized"
                     )
