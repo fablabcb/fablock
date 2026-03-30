@@ -2,7 +2,7 @@ from collections.abc import Awaitable, Callable
 import asyncio
 import logging
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from telegram import Bot, BotCommand, BotCommandScopeChat, Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
 import secret_config
@@ -65,6 +65,12 @@ class TelegramHandler(Handler):
             ).total_seconds() > OLD_MESSAGE_TIMEOUT_SEC:
                 logger.warning("ignored outdated message")
                 return
+            if now >= datetime(2026, 7, 1, tzinfo=timezone.utc):
+                await self.send("Telegram access is no longer available, switch to Discourse or another access method. Getting started with Discourse: <https://community.fablab-cottbus.de/t/7>")
+                return
+            else:
+                await self.send("Telegram access ends 2026-06-30, switch to Discourse or another access method. Getting started with Discourse: <https://community.fablab-cottbus.de/t/7>")
+                await asyncio.sleep(2)
 
             if update.effective_chat.id == secret_config.TELEGRAM_CHAT_ID:
                 username = update.message.from_user.full_name
