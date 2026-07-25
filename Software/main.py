@@ -14,7 +14,6 @@ async def main():
         state_machine = states.StateMachine(manager.broadcast)
         await state_machine.run()
 
-    manager.handlers.append(telegram_handler.TelegramHandler())
     manager.handlers.append(discourse_handler.DiscourseHandler())
 
     if config.NETWORKING_ENABLED:
