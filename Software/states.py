@@ -1,10 +1,11 @@
 import asyncio
-from collections.abc import Awaitable, Callable
-from enum import Enum
-import config
-import hardware
 import logging
 import time
+from collections.abc import Awaitable, Callable
+from enum import Enum
+
+import config
+import hardware
 
 logger = logging.getLogger(__name__)
 # logger.setLevel(logging.DEBUG)
@@ -20,7 +21,7 @@ class State(Enum):
     CLOSING_HALTED = 5
     CLOSING_HALTED_TIMEOUT = 6
     CLOSING = 7
-    # waiting for Telegram open command
+    # waiting for an open command
     LOCKED = 8
 
 

@@ -1,8 +1,9 @@
 import asyncio
+
 import config
 import hardware
-from handlers import Manager, discourse_handler, telegram_handler, tcp_handler
 import states
+from handlers import Manager, discourse_handler, tcp_handler
 
 
 async def main():

@@ -1,6 +1,8 @@
-from enum import auto, Enum
-import config
+from enum import Enum, auto
+
 import pigpio  # http://abyz.me.uk/rpi/pigpio/
+
+import config
 
 
 def endstop_unlocked_reached():

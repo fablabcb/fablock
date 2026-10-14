@@ -1,10 +1,11 @@
 import asyncio
-import config
 import logging
 import socket
 import ssl
-from . import Handler, Manager
 
+import config
+
+from . import Handler, Manager
 
 logger = logging.getLogger("tcp")
 

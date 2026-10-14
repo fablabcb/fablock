@@ -1,11 +1,14 @@
-from collections.abc import Awaitable, Callable
 import asyncio
 import logging
 import time
+from collections.abc import Awaitable, Callable
 from datetime import datetime
+
 from telegram import Bot, BotCommand, BotCommandScopeChat, Update
-from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
+from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
+
 import secret_config
+
 from . import Handler, Manager
 
 OLD_MESSAGE_TIMEOUT_SEC = 30

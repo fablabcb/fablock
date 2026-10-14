@@ -1,5 +1,6 @@
 import asyncio
 import logging
+
 import states
 
 
@@ -18,7 +19,10 @@ class Manager:
         try:
             await asyncio.gather(
                 *[
-                    handler.send(f"opening for {name} (via {handler_name})", critical=True)
+                    handler.send(
+                        f"opening for {name} (via {handler_name})",
+                        critical=True,
+                    )
                     for handler in self.handlers
                 ],
                 return_exceptions=True,
