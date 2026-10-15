@@ -52,3 +52,7 @@ sudo systemctl start fablock.service
 ```
 
 You should see/hear some (short) movement for homing the mechanism to the closed position when starting.
+
+## Testing
+
+For testing without the hardware attached, replace `hardware.py` with `hardware.testing.py`.
