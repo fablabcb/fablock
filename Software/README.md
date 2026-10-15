@@ -5,7 +5,15 @@ This is a multi-channel bot that opens the fablock.
 You can trigger the opening by sending a command to one of the configured handlers.
 The TLS handler is intended for the RFID-companion.
 
-## TLS interface
+## Handlers
+
+The following handlers are available.
+- Discourse interface
+- Networking interface (using mutual TLS)
+- Telegram interface (disabled by default)
+- Unix Signal handler (open on SIGUSR1)
+
+### TLS interface
 
 When the program is started it will open a TCP listening socket on port 55555.
 You can trigger the opening sequence by sending a `0x00` byte.

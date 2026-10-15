@@ -3,7 +3,7 @@ import asyncio
 import config
 import hardware
 import states
-from handlers import Manager, discourse_handler, tcp_handler
+from handlers import Manager, discourse_handler, sig_handler, tcp_handler
 
 
 async def main():
@@ -16,6 +16,7 @@ async def main():
         await state_machine.run()
 
     manager.handlers.append(discourse_handler.DiscourseHandler())
+    manager.handlers.append(sig_handler.SigHandler())
 
     if config.NETWORKING_ENABLED:
         manager.handlers.append(tcp_handler.TcpHandler())
